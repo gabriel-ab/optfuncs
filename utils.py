@@ -2,9 +2,9 @@
 
 import numpy as np
 
-import numpy_functions as functions_np
-import tensorflow_functions as functions_tf
-import core
+from optfuncs import numpy_functions as functions_np
+from optfuncs import tensorflow_functions as functions_tf
+from optfuncs import core
 
 
 def get_common_function(name, in_tensorflow=False) -> core.Function:
