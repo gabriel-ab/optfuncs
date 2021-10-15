@@ -5,6 +5,7 @@ from typing import List
 import numpy as np
 
 import core
+import tensorflow_functions as tff
 
 
 class Ackley(core.Function):
@@ -223,6 +224,13 @@ class DixonPrice(core.Function):
     if result.dtype != x.dtype:
       result = result.astype(x.dtype)
     return np.squeeze(result)
+
+
+# Função utilitária para obter uma função equivalente de Numpy em Tensorflow.
+def get_tf_function(function: core.Function):
+  domain = function.domain
+  f = getattr(tff, function.name)
+  return f(domain)
 
 
 def list_all_functions() -> List[core.Function]:
