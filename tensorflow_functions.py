@@ -4,7 +4,8 @@ from math import e, pi
 from typing import List
 
 import tensorflow as tf
-from src.functions import core
+
+import core
 
 
 class Ackley(core.Function):
@@ -23,7 +24,7 @@ class Ackley(core.Function):
     d = tf.constant(x.shape[-1], x.dtype)
     sum1 = tf.reduce_sum(x * x, axis=-1)
     sum2 = tf.reduce_sum(tf.cos(self.c * x), axis=-1)
-    term1 = -self.a * tf.exp(-self.b * tf.sqrt(sum1/d))
+    term1 = -self.a * tf.exp(-self.b * tf.sqrt(sum1 / d))
     term2 = tf.exp(sum2 / d)
     result = term1 - term2 + self.a + e
     return result
@@ -53,8 +54,8 @@ class Rastrigin(core.Function):
 
   def __call__(self, x: tf.Tensor):
     d = x.shape[-1]
-    return 10 * d + tf.reduce_sum(x ** 2 - 10 * 
-      tf.cos(x * 2 * pi), axis=-1)
+    return 10 * d + tf.reduce_sum(x ** 2 - 10 *
+                                  tf.cos(x * 2 * pi), axis=-1)
 
 
 class Levy(core.Function):
@@ -73,8 +74,8 @@ class Levy(core.Function):
     wd = w[:, d]
     term3 = (wd - 1) ** 2 * (1 + tf.sin(2 * pi * wd) ** 2)
     wi = w[:, 0:d]
-    levy_sum = tf.reduce_sum((wi - 1) ** 2 * 
-      (1 + 10 * tf.sin(pi * wi + 1) ** 2), axis=-1)
+    levy_sum = tf.reduce_sum((wi - 1) ** 2 *
+                             (1 + 10 * tf.sin(pi * wi + 1) ** 2), axis=-1)
     return tf.squeeze(term1 + levy_sum + term3)
 
 
@@ -87,9 +88,10 @@ class Rosenbrock(core.Function):
 
   def __call__(self, x: tf.Tensor):
     x = atleast2d(x)
-    xi = x[:,:-1]
-    xnext = x[:,1:]
-    result = tf.reduce_sum(100 * (xnext - xi ** 2) ** 2 + (xi - 1) ** 2, axis=-1)
+    xi = x[:, :-1]
+    xnext = x[:, 1:]
+    result = tf.reduce_sum(100 * (xnext - xi ** 2) ** 2 + (xi - 1) ** 2,
+                           axis=-1)
     return tf.squeeze(result)
 
 
@@ -159,7 +161,7 @@ class RotatedHyperEllipsoid(core.Function):
     d = tf.shape(x)[-1]
     mat = tf.repeat(tf.expand_dims(x, 1), d, 1)
     matlow = tf.linalg.band_part(mat, -1, 0)
-    inner = tf.reduce_sum(matlow**2, -1)
+    inner = tf.reduce_sum(matlow ** 2, -1)
     result = tf.reduce_sum(inner, -1)
     return tf.squeeze(result)
 
@@ -174,10 +176,10 @@ class DixonPrice(core.Function):
   def __call__(self, x: tf.Tensor):
     x = atleast2d(x)
     d = tf.shape(x)[-1]
-    x0 = x[:,0]
+    x0 = x[:, 0]
     ii = tf.range(2.0, d + 1, dtype=x.dtype)
-    xi = x[:,1:]
-    xold = x[:,:-1]
+    xi = x[:, 1:]
+    xold = x[:, :-1]
     dixon_sum = ii * (2 * xi ** 2 - xold) ** 2
     result = (x0 - 1) ** 2 + tf.reduce_sum(dixon_sum, -1)
     return tf.squeeze(result)
@@ -203,9 +205,8 @@ def get_grads(fun: core.Function, pos: tf.Tensor):
   return tape.gradient(y, pos), y
 
 
-
 def atleast2d(tensor: tf.Tensor) -> tf.Tensor:
   """Make sure a tensor is a matrix."""
   return tf.cond(tf.less(tf.size(tf.shape(tensor)), 2),
-    lambda: tf.expand_dims(tensor,0),
-    lambda: tensor)
+                 lambda: tf.expand_dims(tensor, 0),
+                 lambda: tensor)
