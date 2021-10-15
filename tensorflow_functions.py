@@ -6,6 +6,7 @@ from typing import List
 import tensorflow as tf
 
 import core
+import numpy_functions as npf
 
 
 class Ackley(core.Function):
@@ -38,7 +39,7 @@ class Griewank(core.Function):
     super().__init__(domain)
 
   def __call__(self, x: tf.Tensor):
-    x = atleast2d(x)
+    x = atleast_2d(x)
     shape = tf.shape(x)
     griewank_sum = tf.reduce_sum(x ** 2, axis=-1) / 4000
     den = tf.range(1, shape[-1] + 1, dtype=x.dtype)
@@ -66,7 +67,7 @@ class Levy(core.Function):
     super().__init__(domain)
 
   def __call__(self, x: tf.Tensor):
-    x = atleast2d(x)
+    x = atleast_2d(x)
     d = tf.shape(x)[-1] - 1
     w = 1 + (x - 1) / 4
 
@@ -87,7 +88,7 @@ class Rosenbrock(core.Function):
     super().__init__(domain)
 
   def __call__(self, x: tf.Tensor):
-    x = atleast2d(x)
+    x = atleast_2d(x)
     xi = x[:, :-1]
     xnext = x[:, 1:]
     result = tf.reduce_sum(100 * (xnext - xi ** 2) ** 2 + (xi - 1) ** 2,
@@ -157,7 +158,7 @@ class RotatedHyperEllipsoid(core.Function):
     super().__init__(domain)
 
   def __call__(self, x: tf.Tensor):
-    x = atleast2d(x)
+    x = atleast_2d(x)
     d = tf.shape(x)[-1]
     mat = tf.repeat(tf.expand_dims(x, 1), d, 1)
     matlow = tf.linalg.band_part(mat, -1, 0)
@@ -174,7 +175,7 @@ class DixonPrice(core.Function):
     super().__init__(domain)
 
   def __call__(self, x: tf.Tensor):
-    x = atleast2d(x)
+    x = atleast_2d(x)
     d = tf.shape(x)[-1]
     x0 = x[:, 0]
     ii = tf.range(2.0, d + 1, dtype=x.dtype)
@@ -205,8 +206,15 @@ def get_grads(fun: core.Function, pos: tf.Tensor):
   return tape.gradient(y, pos), y
 
 
-def atleast2d(tensor: tf.Tensor) -> tf.Tensor:
+def atleast_2d(tensor: tf.Tensor) -> tf.Tensor:
   """Make sure a tensor is a matrix."""
   return tf.cond(tf.less(tf.size(tf.shape(tensor)), 2),
                  lambda: tf.expand_dims(tensor, 0),
                  lambda: tensor)
+
+
+# Função utilitária para obter uma função equivalente de TensorFlow em Numpy.
+def get_np_function(function: core.Function):
+  domain = function.domain
+  f = getattr(npf, function.name)
+  return f(domain)
