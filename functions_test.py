@@ -1,45 +1,47 @@
 """Function validation tests."""
 
-import tensorflow as tf
-import numpy as np
 import unittest
 
-import src.functions.tensorflow_functions as tff
-import src.functions.numpy_functions as npf
-from src.functions import core
+import numpy as np
+import tensorflow as tf
+
+import core
+import numpy_functions as npf
+import tensorflow_functions as tff
 
 # TODO: Check how to run R implementation in this test
 
-array = [1,2,3,4]
+array = [1, 2, 3, 4]
 array_lockup = {
-  "Ackley"                 : 8.43469444443746497,
-  "Griewank"               : 1.00187037800320189,
-  "Rastrigin"              : 30.0,
-  "Levy"                   : 2.76397190019909811,
-  "Rosenbrock"             : 2705.0,
-  "Zakharov"               : 50880.0,
-  "SumSquares"             : 100.0,
-  "Sphere"                 : 30.0,
-  "RotatedHyperEllipsoid"  : 50.0,
-  "DixonPrice"             : 4230.0,
+  "Ackley": 8.43469444443746497,
+  "Griewank": 1.00187037800320189,
+  "Rastrigin": 30.0,
+  "Levy": 2.76397190019909811,
+  "Rosenbrock": 2705.0,
+  "Zakharov": 50880.0,
+  "SumSquares": 100.0,
+  "Sphere": 30.0,
+  "RotatedHyperEllipsoid": 50.0,
+  "DixonPrice": 4230.0,
 }
 
-zeros = [0,0,0,0]
+zeros = [0, 0, 0, 0]
 zero_lockup = {
-  "Ackley"                 : 4.44089209850062616e-16,
-  "Griewank"               : 0.0,
-  "Rastrigin"              : 0.0,
-  "Levy"                   : 0.897533662350923467,
-  "Rosenbrock"             : 3.0,
-  "Zakharov"               : 0.0,
-  "SumSquares"             : 0.0,
-  "Sphere"                 : 0.0,
-  "RotatedHyperEllipsoid"  : 0.0,
-  "DixonPrice"             : 1.0,
+  "Ackley": 4.44089209850062616e-16,
+  "Griewank": 0.0,
+  "Rastrigin": 0.0,
+  "Levy": 0.897533662350923467,
+  "Rosenbrock": 3.0,
+  "Zakharov": 0.0,
+  "SumSquares": 0.0,
+  "Sphere": 0.0,
+  "RotatedHyperEllipsoid": 0.0,
+  "DixonPrice": 1.0,
 }
+
 
 class TestNumpyFunctions(unittest.TestCase):
-  batch_size = 2 # batch size of array in multiple input testing
+  batch_size = 2  # batch size of array in multiple input testing
   dtype = np.float64
 
   @classmethod
@@ -53,7 +55,7 @@ class TestNumpyFunctions(unittest.TestCase):
     del cls.array
     del cls.zero
     del cls.batch
-  
+
   def default_test(self, f: core.Function):
     array_result = np.array(array_lockup[f.name], self.dtype)
     batch_result = np.array(array_result).repeat(self.batch_size)
@@ -80,35 +82,34 @@ class TestNumpyFunctions(unittest.TestCase):
 
   def test_griewank(self):
     self.default_test(npf.Griewank())
-  
+
   def test_rastrigin(self):
     self.default_test(npf.Rastrigin())
-  
+
   def test_levy(self):
     self.default_test(npf.Levy())
-  
+
   def test_rosenbrock(self):
     self.default_test(npf.Rosenbrock())
-  
+
   def test_zakharov(self):
     self.default_test(npf.Zakharov())
-  
+
   def test_sum_squares(self):
     self.default_test(npf.SumSquares())
-  
+
   def test_sphere(self):
     self.default_test(npf.Sphere())
-  
+
   def test_rotated_hyper_ellipsoid(self):
     self.default_test(npf.RotatedHyperEllipsoid())
-  
+
   def test_dixon_price(self):
     self.default_test(npf.DixonPrice())
 
 
 class TestTensorflowFunctions(unittest.TestCase):
-  
-  batch_size = 10 # batch size of array in multiple input testing
+  batch_size = 10  # batch size of array in multiple input testing
   dtype = tf.float64
 
   @classmethod
@@ -122,7 +123,7 @@ class TestTensorflowFunctions(unittest.TestCase):
     del cls.array
     del cls.zeros
     del cls.batch
-  
+
   # Get batch expected result from array expected result
   def batch_result(self, array_result: tf.Tensor) -> tf.Tensor:
     return tf.repeat(tf.expand_dims(array_result, 0), self.batch_size, 0)
@@ -155,36 +156,37 @@ class TestTensorflowFunctions(unittest.TestCase):
     # Testing shape and dtype
     self.assertEqual(result.shape, array_result.shape)
     self.assertEqual(result.dtype, array_result.dtype)
-    
+
   def test_ackley(self):
     self.default_test(tff.Ackley())
-    
+
   def test_griewank(self):
     self.default_test(tff.Griewank())
-  
+
   def test_rastrigin(self):
     self.default_test(tff.Rastrigin())
-  
+
   def test_levy(self):
     self.default_test(tff.Levy())
-  
+
   def test_rosenbrock(self):
     self.default_test(tff.Rosenbrock())
-  
+
   def test_zakharov(self):
     self.default_test(tff.Zakharov())
-  
+
   def test_sum_squares(self):
     self.default_test(tff.SumSquares())
-  
+
   def test_sphere(self):
     self.default_test(tff.Sphere())
-  
+
   def test_rotated_hyper_ellipsoid(self):
     self.default_test(tff.RotatedHyperEllipsoid())
 
   def test_dixon_price(self):
     self.default_test(tff.DixonPrice())
+
 
 def test_random():
   list_tf_functions = tff.list_all_functions()
@@ -213,6 +215,7 @@ def test_random():
     print('----------------------------')
 
   print('Process finished.')
- 
+
+
 if __name__ == "__main__":
   unittest.main()
