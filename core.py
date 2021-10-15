@@ -11,6 +11,7 @@ class Domain(typing.NamedTuple):
 
 class Function:
   """Classe base para todas funções."""
+
   def __init__(self, domain: Domain):
     assert domain is not None
     self._domain = domain
