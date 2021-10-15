@@ -4,8 +4,8 @@ from typing import List
 
 import numpy as np
 
-import core
-import tensorflow_functions as tff
+from optfuncs import core
+from optfuncs import tensorflow_functions as tff
 
 
 class Ackley(core.Function):

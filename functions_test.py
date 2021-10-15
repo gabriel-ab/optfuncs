@@ -5,9 +5,9 @@ import unittest
 import numpy as np
 import tensorflow as tf
 
-import core
-import numpy_functions as npf
-import tensorflow_functions as tff
+from optfuncs import core
+from optfuncs import numpy_functions as npf
+from optfuncs import tensorflow_functions as tff
 
 # TODO: Check how to run R implementation in this test
 
