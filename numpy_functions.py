@@ -20,7 +20,7 @@ class Ackley(core.Function):
     self.c = c
     self.dtype = dtype
 
-  def __call__(self, x: np.ndarray):
+  def call(self, x: np.ndarray):
     d = x.shape[-1]
     sum1 = np.sum(x * x, axis=-1)
     sum2 = np.sum(np.cos(self.c * x), axis=-1)
@@ -40,7 +40,7 @@ class Griewank(core.Function):
   def __init__(self, domain=core.Domain(min=-600.0, max=600.0)):
     super().__init__(domain)
 
-  def __call__(self, x: np.ndarray):
+  def call(self, x: np.ndarray):
     x = np.atleast_2d(x)
     griewank_sum = np.sum(x ** 2, axis=-1) / 4000.0
     den = np.arange(1, x.shape[-1] + 1,
@@ -61,7 +61,7 @@ class Rastrigin(core.Function):
   def __init__(self, domain=core.Domain(min=-5.12, max=5.12)):
     super().__init__(domain)
 
-  def __call__(self, x: np.ndarray):
+  def call(self, x: np.ndarray):
     d = x.shape[-1]
     result = 10 * d + np.sum(x ** 2 - 10 * np.cos(x * 2 * np.math.pi), axis=-1)
 
@@ -77,7 +77,7 @@ class Levy(core.Function):
   def __init__(self, domain=core.Domain(min=-10.0, max=10.0)):
     super().__init__(domain)
 
-  def __call__(self, x: np.ndarray):
+  def call(self, x: np.ndarray):
     x = np.atleast_2d(x)
     pi = np.math.pi
     d = x.shape[-1] - 1
@@ -103,7 +103,7 @@ class Rosenbrock(core.Function):
   def __init__(self, domain=core.Domain(min=-5.0, max=10.0)):
     super().__init__(domain)
 
-  def __call__(self, x: np.ndarray):
+  def call(self, x: np.ndarray):
     x = np.atleast_2d(x)
     xi = x[:, :-1]
     xnext = x[:, 1:]
@@ -121,7 +121,7 @@ class Zakharov(core.Function):
   def __init__(self, domain=core.Domain(min=-5.0, max=10.0)):
     super().__init__(domain)
 
-  def __call__(self, x: np.ndarray):
+  def call(self, x: np.ndarray):
     d = x.shape[-1]
 
     sum1 = np.sum(x * x, axis=-1)
@@ -140,7 +140,7 @@ class Bohachevsky(core.Function):
   def __init__(self, domain=core.Domain(min=-100.0, max=100.0)):
     super().__init__(domain)
 
-  def __call__(self, x: np.ndarray):
+  def call(self, x: np.ndarray):
     d = x.shape[-1]
     assert d == 2
 
@@ -160,7 +160,7 @@ class SumSquares(core.Function):
   def __init__(self, domain=core.Domain(min=-10.0, max=10.0)):
     super().__init__(domain)
 
-  def __call__(self, x: np.ndarray):
+  def call(self, x: np.ndarray):
     d = x.shape[-1]
     mul = np.arange(start=1, stop=(d + 1), dtype=x.dtype)
     result = np.sum((x ** 2) * mul, axis=-1)
@@ -177,7 +177,7 @@ class Sphere(core.Function):
   def __init__(self, domain=core.Domain(min=-5.12, max=5.12)):
     super().__init__(domain)
 
-  def __call__(self, x: np.ndarray):
+  def call(self, x: np.ndarray):
     result = np.sum(x * x, axis=-1)
 
     if result.dtype != x.dtype:
@@ -192,7 +192,7 @@ class RotatedHyperEllipsoid(core.Function):
   def __init__(self, domain=core.Domain(min=-65.536, max=65.536)):
     super().__init__(domain)
 
-  def __call__(self, x: np.ndarray):
+  def call(self, x: np.ndarray):
     x = np.atleast_2d(x)
     mat = x[:, None].repeat(x.shape[-1], axis=1)
     matlow = np.tril(mat)
@@ -211,7 +211,7 @@ class DixonPrice(core.Function):
   def __init__(self, domain=core.Domain(-10, 10)):
     super().__init__(domain)
 
-  def __call__(self, x: np.ndarray):
+  def call(self, x: np.ndarray):
     x = np.atleast_2d(x)
     x0 = x[:, 0]
     d = x.shape[-1]

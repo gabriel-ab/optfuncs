@@ -15,10 +15,10 @@ class Function:
   def __init__(self, domain: Domain):
     assert domain is not None
     self._domain = domain
+    self._fn = self.call
 
-  @abc.abstractmethod
   def __call__(self, x):
-    pass
+    return self._fn(x)
 
   @property
   def domain(self) -> Domain:
@@ -34,3 +34,10 @@ class Function:
 
   def __str__(self):
     return self.__class__.__name__
+
+  @abc.abstractmethod
+  def call(self, x):
+    """Default call interface
+    This method must have the default implementation of the function.
+    """
+    pass

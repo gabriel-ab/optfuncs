@@ -21,7 +21,7 @@ class Ackley(core.Function):
     self.b = b
     self.c = c
 
-  def __call__(self, x: tf.Tensor):
+  def call(self, x: tf.Tensor):
     d = tf.constant(x.shape[-1], x.dtype)
     sum1 = tf.reduce_sum(x * x, axis=-1)
     sum2 = tf.reduce_sum(tf.cos(self.c * x), axis=-1)
@@ -38,7 +38,7 @@ class Griewank(core.Function):
   def __init__(self, domain: core.Domain = core.Domain(min=-600.0, max=600.0)):
     super().__init__(domain)
 
-  def __call__(self, x: tf.Tensor):
+  def call(self, x: tf.Tensor):
     x = atleast_2d(x)
     shape = tf.shape(x)
     griewank_sum = tf.reduce_sum(x ** 2, axis=-1) / 4000
@@ -53,7 +53,7 @@ class Rastrigin(core.Function):
   def __init__(self, domain: core.Domain = core.Domain(min=-5.12, max=5.12)):
     super().__init__(domain)
 
-  def __call__(self, x: tf.Tensor):
+  def call(self, x: tf.Tensor):
     d = x.shape[-1]
     return 10 * d + tf.reduce_sum(x ** 2 - 10 *
                                   tf.cos(x * 2 * pi), axis=-1)
@@ -66,7 +66,7 @@ class Levy(core.Function):
   def __init__(self, domain: core.Domain = core.Domain(min=-10.0, max=10.0)):
     super().__init__(domain)
 
-  def __call__(self, x: tf.Tensor):
+  def call(self, x: tf.Tensor):
     x = atleast_2d(x)
     d = tf.shape(x)[-1] - 1
     w = 1 + (x - 1) / 4
@@ -87,7 +87,7 @@ class Rosenbrock(core.Function):
   def __init__(self, domain: core.Domain = core.Domain(min=-5.0, max=10.0)):
     super().__init__(domain)
 
-  def __call__(self, x: tf.Tensor):
+  def call(self, x: tf.Tensor):
     x = atleast_2d(x)
     xi = x[:, :-1]
     xnext = x[:, 1:]
@@ -103,7 +103,7 @@ class Zakharov(core.Function):
   def __init__(self, domain: core.Domain = core.Domain(min=-5.0, max=10.0)):
     super().__init__(domain)
 
-  def __call__(self, x: tf.Tensor):
+  def call(self, x: tf.Tensor):
     d = x.shape[-1]
     sum1 = tf.reduce_sum(x * x, axis=-1)
     sum2 = tf.reduce_sum(x * tf.range(1, (d + 1), dtype=x.dtype) / 2, axis=-1)
@@ -117,7 +117,7 @@ class Bohachevsky(core.Function):
   def __init__(self, domain: core.Domain = core.Domain(min=-100.0, max=100.0)):
     super().__init__(domain)
 
-  def __call__(self, x: tf.Tensor):
+  def call(self, x: tf.Tensor):
     d = x.shape[-1]
     tf.assert_equal(d, 2)
 
@@ -133,7 +133,7 @@ class SumSquares(core.Function):
   def __init__(self, domain: core.Domain = core.Domain(min=-10.0, max=10.0)):
     super().__init__(domain)
 
-  def __call__(self, x: tf.Tensor):
+  def call(self, x: tf.Tensor):
     mul = tf.range(1, x.shape[-1] + 1, dtype=x.dtype)
     return tf.reduce_sum((x ** 2) * mul, axis=-1)
 
@@ -145,7 +145,7 @@ class Sphere(core.Function):
   def __init__(self, domain: core.Domain = core.Domain(min=-5.12, max=5.12)):
     super().__init__(domain)
 
-  def __call__(self, x: tf.Tensor):
+  def call(self, x: tf.Tensor):
     return tf.reduce_sum(x * x, axis=-1)
 
 
@@ -157,7 +157,7 @@ class RotatedHyperEllipsoid(core.Function):
                domain: core.Domain = core.Domain(min=-65.536, max=65.536)):
     super().__init__(domain)
 
-  def __call__(self, x: tf.Tensor):
+  def call(self, x: tf.Tensor):
     x = atleast_2d(x)
     d = tf.shape(x)[-1]
     mat = tf.repeat(tf.expand_dims(x, 1), d, 1)
@@ -174,7 +174,7 @@ class DixonPrice(core.Function):
   def __init__(self, domain: core.Domain = core.Domain(-10, 10)):
     super().__init__(domain)
 
-  def __call__(self, x: tf.Tensor):
+  def call(self, x: tf.Tensor):
     x = atleast_2d(x)
     d = tf.shape(x)[-1]
     x0 = x[:, 0]
