@@ -10,12 +10,13 @@ class Domain(typing.NamedTuple):
 
 
 class Function:
-  """Classe base para todas funções."""
+  """Base Class for all mathematical functions"""
 
   def __init__(self, domain: Domain):
     assert domain is not None
     self._domain = domain
     self._fn = self.call
+    self.transformations = None
 
   def __call__(self, x):
     return self._fn(x)
@@ -30,10 +31,39 @@ class Function:
 
   @property
   def name(self):
-    return str(self)
+    return type(self).__name__
+  
+  def __str__(self) -> str:
+    return self.name
+  
+  def __repr__(self) -> str:
+    default = f'{self.name}({self.domain}) at {id(self)}'
+    if self.transformations is None:
+      return default
+    else:
+      sb, tb, sa, ta = self.transformations
+      return default + ' - Transformation(*{} -> +{} -> {} ->  *{} -> +{})'.format(
+        sb, tb, self.name, sa, ta)
 
-  def __str__(self):
-    return self.__class__.__name__
+  def transform(self, scale_before = 1.0, translate_before = 0.0, 
+                      scale_after = 1.0, translate_after = 0.0):
+    """Transform current function"""
+    self.transformations = scale_before, translate_before, scale_after, translate_after
+    def transformed_call(x):
+      x *= scale_before
+      x += translate_before
+      x = self.call(x)
+      x *= scale_after
+      x += translate_after
+      return x
+    self._fn = transformed_call
+    return self
+  
+  def clear_transformation(self):
+    """Remove transformation"""
+    self.transformations = None
+    self._fn = self.call
+    return self
 
   @abc.abstractmethod
   def call(self, x):
