@@ -9,7 +9,29 @@ from optfuncs import core
 from optfuncs import numpy_functions as npf
 
 
-class Ackley(core.Function):
+class TensorflowFunction(core.Function):
+  def __init__(self, domain: core.Domain):
+      super().__init__(domain)
+      self._grads = None
+      self.calculate_gradients = True
+
+  def __call__(self, x):
+    if self.calculate_gradients:
+      with tf.GradientTape() as tape:
+        tape.watch(x)
+        y = super().__call__(x)
+      self._grads = tape.gradient(y, x)
+      return y
+
+    return super().__call__(x)
+
+  @property
+  def gradients(self):
+    """Get the gradients of the last function call."""
+    return self._grads
+
+
+class Ackley(TensorflowFunction):
   """Ackley function as defined in:
   https://www.sfu.ca/~ssurjano/ackley.html."""
 
@@ -31,7 +53,7 @@ class Ackley(core.Function):
     return result
 
 
-class Griewank(core.Function):
+class Griewank(TensorflowFunction):
   """Griewank function as defined in:
   https://www.sfu.ca/~ssurjano/griewank.html."""
 
@@ -49,7 +71,7 @@ class Griewank(core.Function):
     return tf.squeeze(griewank_sum - prod + 1)
 
 
-class Rastrigin(core.Function):
+class Rastrigin(TensorflowFunction):
   def __init__(self, domain: core.Domain = core.Domain(min=-5.12, max=5.12)):
     super().__init__(domain)
 
@@ -59,7 +81,7 @@ class Rastrigin(core.Function):
                                   tf.cos(x * 2 * pi), axis=-1)
 
 
-class Levy(core.Function):
+class Levy(TensorflowFunction):
   """Levy function as defined in:
   https://www.sfu.ca/~ssurjano/levy.html."""
 
@@ -80,7 +102,7 @@ class Levy(core.Function):
     return tf.squeeze(term1 + levy_sum + term3)
 
 
-class Rosenbrock(core.Function):
+class Rosenbrock(TensorflowFunction):
   """Rosenbrock function as defined in:
   https://www.sfu.ca/~ssurjano/rosen.html."""
 
@@ -96,7 +118,7 @@ class Rosenbrock(core.Function):
     return tf.squeeze(result)
 
 
-class Zakharov(core.Function):
+class Zakharov(TensorflowFunction):
   """Zakharov function as defined in:
   https://www.sfu.ca/~ssurjano/zakharov.html."""
 
@@ -110,7 +132,7 @@ class Zakharov(core.Function):
     return sum1 + sum2 ** 2 + sum2 ** 4
 
 
-class Bohachevsky(core.Function):
+class Bohachevsky(TensorflowFunction):
   """Bohachevsky function (f1, 2 dims only) as defined in:
   https://www.sfu.ca/~ssurjano/boha.html."""
 
@@ -126,7 +148,7 @@ class Bohachevsky(core.Function):
            tf.math.multiply(0.4, tf.cos(4 * pi * x[1])) + 0.7
 
 
-class SumSquares(core.Function):
+class SumSquares(TensorflowFunction):
   """SumSquares function as defined in:
   https://www.sfu.ca/~ssurjano/sumsqu.html."""
 
@@ -138,7 +160,7 @@ class SumSquares(core.Function):
     return tf.reduce_sum((x ** 2) * mul, axis=-1)
 
 
-class Sphere(core.Function):
+class Sphere(TensorflowFunction):
   """Sphere function as defined in:
   https://www.sfu.ca/~ssurjano/spheref.html."""
 
@@ -149,7 +171,7 @@ class Sphere(core.Function):
     return tf.reduce_sum(x * x, axis=-1)
 
 
-class RotatedHyperEllipsoid(core.Function):
+class RotatedHyperEllipsoid(TensorflowFunction):
   """Rotated Hyper-Ellipsoid function as defined in:
   https://www.sfu.ca/~ssurjano/rothyp.html."""
 
@@ -167,7 +189,7 @@ class RotatedHyperEllipsoid(core.Function):
     return tf.squeeze(result)
 
 
-class DixonPrice(core.Function):
+class DixonPrice(TensorflowFunction):
   """Dixon-Price function as defined in:
   https://www.sfu.ca/~ssurjano/dixonpr.html."""
 
@@ -186,7 +208,7 @@ class DixonPrice(core.Function):
     return tf.squeeze(result)
 
 
-def list_all_functions() -> List[core.Function]:
+def list_all_functions() -> List[TensorflowFunction]:
   return [Ackley(), Griewank(), Rastrigin(), Levy(), Rosenbrock(), Zakharov(),
           Bohachevsky(), SumSquares(), Sphere(), RotatedHyperEllipsoid(),
           DixonPrice()]

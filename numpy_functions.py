@@ -7,8 +7,16 @@ import numpy as np
 from optfuncs import core
 from optfuncs import tensorflow_functions as tff
 
+class NumpyFunction(core.Function):
+  def transform(self, scale_before=1, translate_before=0, scale_after=1, translate_after=0):
+    return super().transform(
+      scale_before     = np.array(scale_before),
+      translate_before = np.array(translate_before),
+      scale_after      = scale_after,
+      translate_after  = translate_after)
 
-class Ackley(core.Function):
+
+class Ackley(NumpyFunction):
   """Ackley function as defined in:
   https://www.sfu.ca/~ssurjano/ackley.html."""
 
@@ -33,7 +41,7 @@ class Ackley(core.Function):
     return result
 
 
-class Griewank(core.Function):
+class Griewank(NumpyFunction):
   """Griewank function as defined in:
   https://www.sfu.ca/~ssurjano/griewank.html."""
 
@@ -54,7 +62,7 @@ class Griewank(core.Function):
     return np.squeeze(result)
 
 
-class Rastrigin(core.Function):
+class Rastrigin(NumpyFunction):
   """Rastrigin function as defined in:
   https://www.sfu.ca/~ssurjano/rastr.html."""
 
@@ -70,7 +78,7 @@ class Rastrigin(core.Function):
     return result
 
 
-class Levy(core.Function):
+class Levy(NumpyFunction):
   """Levy function as defined in:
   https://www.sfu.ca/~ssurjano/levy.html."""
 
@@ -96,7 +104,7 @@ class Levy(core.Function):
     return np.squeeze(result)
 
 
-class Rosenbrock(core.Function):
+class Rosenbrock(NumpyFunction):
   """Rosenbrock function as defined in:
   https://www.sfu.ca/~ssurjano/rosen.html."""
 
@@ -114,7 +122,7 @@ class Rosenbrock(core.Function):
     return np.squeeze(result)
 
 
-class Zakharov(core.Function):
+class Zakharov(NumpyFunction):
   """Zakharov function as defined in:
   https://www.sfu.ca/~ssurjano/zakharov.html."""
 
@@ -133,7 +141,7 @@ class Zakharov(core.Function):
     return result
 
 
-class Bohachevsky(core.Function):
+class Bohachevsky(NumpyFunction):
   """Bohachevsky function (f1, 2 dims only) as defined in:
   https://www.sfu.ca/~ssurjano/boha.html."""
 
@@ -153,7 +161,7 @@ class Bohachevsky(core.Function):
     return result
 
 
-class SumSquares(core.Function):
+class SumSquares(NumpyFunction):
   """SumSquares function as defined in:
   https://www.sfu.ca/~ssurjano/sumsqu.html."""
 
@@ -170,7 +178,7 @@ class SumSquares(core.Function):
     return result
 
 
-class Sphere(core.Function):
+class Sphere(NumpyFunction):
   """Sphere function as defined in:
   https://www.sfu.ca/~ssurjano/spheref.html."""
 
@@ -185,7 +193,7 @@ class Sphere(core.Function):
     return result
 
 
-class RotatedHyperEllipsoid(core.Function):
+class RotatedHyperEllipsoid(NumpyFunction):
   """Rotated Hyper-Ellipsoid function as defined in:
   https://www.sfu.ca/~ssurjano/rothyp.html."""
 
@@ -204,7 +212,7 @@ class RotatedHyperEllipsoid(core.Function):
     return np.squeeze(result)
 
 
-class DixonPrice(core.Function):
+class DixonPrice(NumpyFunction):
   """Dixon-Price function as defined in:
   https://www.sfu.ca/~ssurjano/dixonpr.html."""
 
@@ -227,7 +235,7 @@ class DixonPrice(core.Function):
 
 
 # Função utilitária para obter uma função equivalente de Numpy em Tensorflow.
-def get_tf_function(function: core.Function):
+def get_tf_function(function: NumpyFunction):
   domain = function.domain
   f = getattr(tff, function.name)
   return f(domain)
