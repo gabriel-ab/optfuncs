@@ -12,7 +12,7 @@ from optfuncs import tensorflow_functions as tff
 # TODO: Check how to run R implementation in this test
 
 array = [1, 2, 3, 4]
-array_lockup = {
+array_lookup = {
   "Ackley": 8.43469444443746497,
   "Griewank": 1.00187037800320189,
   "Rastrigin": 30.0,
@@ -25,8 +25,21 @@ array_lockup = {
   "DixonPrice": 4230.0,
 }
 
+array_grads_lookup = {
+  "Ackley": [0.2111526245740462, 0.4223052491480924, 0.6334578737221386, 0.8446104982961848],
+  "Griewank": [0.009267616784700606, 0.026214506169269867, -0.018481104338289263, -0.004150474239048943],
+  "Rastrigin": [1.9999999999999847, 3.9999999999999694, 5.999999999999954, 7.999999999999939],
+  "Levy": [-1.9236706937217898e-16, 1.1140352910611864, -0.8055848682112178, 0.7500000000000008],
+  "Rosenbrock": [-400.0, 1002.0, 5804.0, -1000.0],
+  "Zakharov": [6767.0, 13534.0, 20301.0, 27068.0],
+  "SumSquares": [2.0, 8.0, 18.0, 32.0],
+  "Sphere": [2.0, 4.0, 6.0, 8.0],
+  "RotatedHyperEllipsoid": [8.0, 12.0, 12.0, 8.0],
+  "DixonPrice": [-28.0, 128.0, 920.0, 3712.0],
+}
+
 zeros = [0, 0, 0, 0]
-zero_lockup = {
+zero_lookup = {
   "Ackley": 4.44089209850062616e-16,
   "Griewank": 0.0,
   "Rastrigin": 0.0,
@@ -38,7 +51,6 @@ zero_lockup = {
   "RotatedHyperEllipsoid": 0.0,
   "DixonPrice": 1.0,
 }
-
 
 class TestNumpyFunctions(unittest.TestCase):
   batch_size = 2  # batch size of array in multiple input testing
@@ -57,9 +69,9 @@ class TestNumpyFunctions(unittest.TestCase):
     del cls.batch
 
   def default_test(self, f: core.Function):
-    array_result = np.array(array_lockup[f.name], self.dtype)
+    array_result = np.array(array_lookup[f.name], self.dtype)
     batch_result = np.array(array_result).repeat(self.batch_size)
-    zero_result = np.array(zero_lockup[f.name], self.dtype)
+    zero_result = np.array(zero_lookup[f.name], self.dtype)
 
     # Test default value [1,2,3,4]
     result = f(self.array)
@@ -130,13 +142,14 @@ class TestTensorflowFunctions(unittest.TestCase):
 
   # Test a given function
   def default_test(self, f: core.Function):
-    array_result = tf.constant(array_lockup[f.name], self.dtype)
+    array_result = tf.constant(array_lookup[f.name], self.dtype)
     batch_result = self.batch_result(array_result)
-    zero_result = tf.constant(zero_lockup[f.name], self.dtype)
+    zero_result = tf.constant(zero_lookup[f.name], self.dtype)
 
     # Test default value [1,2,3,4]
     result = f(self.array)
     self.assertEqual(result, array_result)
+    self.assertTrue(all(f.gradients == array_grads_lookup[f.name]))
 
     # Test batch of default value [[1,2,3,4],[1,2,3,4], ...]
     result = f(self.batch)
