@@ -6,8 +6,6 @@ from typing import List
 import tensorflow as tf
 
 from optfuncs import core
-from optfuncs import numpy_functions as npf
-
 
 class TensorflowFunction(core.Function):
   pass
@@ -219,6 +217,7 @@ def atleast_2d(tensor: tf.Tensor) -> tf.Tensor:
 
 # Função utilitária para obter uma função equivalente de TensorFlow em Numpy.
 def get_np_function(function: core.Function):
+  from optfuncs import numpy_functions
   domain = function.domain
-  f = getattr(npf, function.name)
+  f = getattr(numpy_functions, function.name)
   return f(domain)
