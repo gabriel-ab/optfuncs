@@ -10,25 +10,7 @@ from optfuncs import numpy_functions as npf
 
 
 class TensorflowFunction(core.Function):
-  def __init__(self, domain: core.Domain):
-      super().__init__(domain)
-      self._grads = None
-      self.calculate_gradients = True
-
-  def __call__(self, x):
-    if self.calculate_gradients:
-      with tf.GradientTape() as tape:
-        tape.watch(x)
-        y = super().__call__(x)
-      self._grads = tape.gradient(y, x)
-      return y
-
-    return super().__call__(x)
-
-  @property
-  def gradients(self):
-    """Get the gradients of the last function call."""
-    return self._grads
+  pass
 
 
 class Ackley(TensorflowFunction):
@@ -43,7 +25,7 @@ class Ackley(TensorflowFunction):
     self.b = b
     self.c = c
 
-  def call(self, x: tf.Tensor):
+  def __call__(self, x: tf.Tensor):
     d = tf.constant(x.shape[-1], x.dtype)
     sum1 = tf.reduce_sum(x * x, axis=-1)
     sum2 = tf.reduce_sum(tf.cos(self.c * x), axis=-1)
@@ -60,7 +42,7 @@ class Griewank(TensorflowFunction):
   def __init__(self, domain: core.Domain = core.Domain(min=-600.0, max=600.0)):
     super().__init__(domain)
 
-  def call(self, x: tf.Tensor):
+  def __call__(self, x: tf.Tensor):
     x = atleast_2d(x)
     shape = tf.shape(x)
     griewank_sum = tf.reduce_sum(x ** 2, axis=-1) / 4000
@@ -75,7 +57,7 @@ class Rastrigin(TensorflowFunction):
   def __init__(self, domain: core.Domain = core.Domain(min=-5.12, max=5.12)):
     super().__init__(domain)
 
-  def call(self, x: tf.Tensor):
+  def __call__(self, x: tf.Tensor):
     d = x.shape[-1]
     return 10 * d + tf.reduce_sum(x ** 2 - 10 *
                                   tf.cos(x * 2 * pi), axis=-1)
@@ -88,7 +70,7 @@ class Levy(TensorflowFunction):
   def __init__(self, domain: core.Domain = core.Domain(min=-10.0, max=10.0)):
     super().__init__(domain)
 
-  def call(self, x: tf.Tensor):
+  def __call__(self, x: tf.Tensor):
     x = atleast_2d(x)
     d = tf.shape(x)[-1] - 1
     w = 1 + (x - 1) / 4
@@ -109,7 +91,7 @@ class Rosenbrock(TensorflowFunction):
   def __init__(self, domain: core.Domain = core.Domain(min=-5.0, max=10.0)):
     super().__init__(domain)
 
-  def call(self, x: tf.Tensor):
+  def __call__(self, x: tf.Tensor):
     x = atleast_2d(x)
     xi = x[:, :-1]
     xnext = x[:, 1:]
@@ -125,7 +107,7 @@ class Zakharov(TensorflowFunction):
   def __init__(self, domain: core.Domain = core.Domain(min=-5.0, max=10.0)):
     super().__init__(domain)
 
-  def call(self, x: tf.Tensor):
+  def __call__(self, x: tf.Tensor):
     d = x.shape[-1]
     sum1 = tf.reduce_sum(x * x, axis=-1)
     sum2 = tf.reduce_sum(x * tf.range(1, (d + 1), dtype=x.dtype) / 2, axis=-1)
@@ -139,7 +121,7 @@ class Bohachevsky(TensorflowFunction):
   def __init__(self, domain: core.Domain = core.Domain(min=-100.0, max=100.0)):
     super().__init__(domain)
 
-  def call(self, x: tf.Tensor):
+  def __call__(self, x: tf.Tensor):
     d = x.shape[-1]
     tf.assert_equal(d, 2)
 
@@ -155,7 +137,7 @@ class SumSquares(TensorflowFunction):
   def __init__(self, domain: core.Domain = core.Domain(min=-10.0, max=10.0)):
     super().__init__(domain)
 
-  def call(self, x: tf.Tensor):
+  def __call__(self, x: tf.Tensor):
     mul = tf.range(1, x.shape[-1] + 1, dtype=x.dtype)
     return tf.reduce_sum((x ** 2) * mul, axis=-1)
 
@@ -167,7 +149,7 @@ class Sphere(TensorflowFunction):
   def __init__(self, domain: core.Domain = core.Domain(min=-5.12, max=5.12)):
     super().__init__(domain)
 
-  def call(self, x: tf.Tensor):
+  def __call__(self, x: tf.Tensor):
     return tf.reduce_sum(x * x, axis=-1)
 
 
@@ -179,7 +161,7 @@ class RotatedHyperEllipsoid(TensorflowFunction):
                domain: core.Domain = core.Domain(min=-65.536, max=65.536)):
     super().__init__(domain)
 
-  def call(self, x: tf.Tensor):
+  def __call__(self, x: tf.Tensor):
     x = atleast_2d(x)
     d = tf.shape(x)[-1]
     mat = tf.repeat(tf.expand_dims(x, 1), d, 1)
@@ -196,7 +178,7 @@ class DixonPrice(TensorflowFunction):
   def __init__(self, domain: core.Domain = core.Domain(-10, 10)):
     super().__init__(domain)
 
-  def call(self, x: tf.Tensor):
+  def __call__(self, x: tf.Tensor):
     x = atleast_2d(x)
     d = tf.shape(x)[-1]
     x0 = x[:, 0]

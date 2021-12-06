@@ -8,13 +8,7 @@ from optfuncs import core
 from optfuncs import tensorflow_functions as tff
 
 class NumpyFunction(core.Function):
-  def transform(self, scale_before=1, translate_before=0, scale_after=1, translate_after=0):
-    return super().transform(
-      scale_before     = np.array(scale_before),
-      translate_before = np.array(translate_before),
-      scale_after      = scale_after,
-      translate_after  = translate_after)
-
+  pass
 
 class Ackley(NumpyFunction):
   """Ackley function as defined in:
@@ -28,7 +22,7 @@ class Ackley(NumpyFunction):
     self.c = c
     self.dtype = dtype
 
-  def call(self, x: np.ndarray):
+  def __call__(self, x: np.ndarray):
     d = x.shape[-1]
     sum1 = np.sum(x * x, axis=-1)
     sum2 = np.sum(np.cos(self.c * x), axis=-1)
@@ -48,7 +42,7 @@ class Griewank(NumpyFunction):
   def __init__(self, domain=core.Domain(min=-600.0, max=600.0)):
     super().__init__(domain)
 
-  def call(self, x: np.ndarray):
+  def __call__(self, x: np.ndarray):
     x = np.atleast_2d(x)
     griewank_sum = np.sum(x ** 2, axis=-1) / 4000.0
     den = np.arange(1, x.shape[-1] + 1,
@@ -69,7 +63,7 @@ class Rastrigin(NumpyFunction):
   def __init__(self, domain=core.Domain(min=-5.12, max=5.12)):
     super().__init__(domain)
 
-  def call(self, x: np.ndarray):
+  def __call__(self, x: np.ndarray):
     d = x.shape[-1]
     result = 10 * d + np.sum(x ** 2 - 10 * np.cos(x * 2 * np.math.pi), axis=-1)
 
@@ -85,7 +79,7 @@ class Levy(NumpyFunction):
   def __init__(self, domain=core.Domain(min=-10.0, max=10.0)):
     super().__init__(domain)
 
-  def call(self, x: np.ndarray):
+  def __call__(self, x: np.ndarray):
     x = np.atleast_2d(x)
     pi = np.math.pi
     d = x.shape[-1] - 1
@@ -111,7 +105,7 @@ class Rosenbrock(NumpyFunction):
   def __init__(self, domain=core.Domain(min=-5.0, max=10.0)):
     super().__init__(domain)
 
-  def call(self, x: np.ndarray):
+  def __call__(self, x: np.ndarray):
     x = np.atleast_2d(x)
     xi = x[:, :-1]
     xnext = x[:, 1:]
@@ -129,7 +123,7 @@ class Zakharov(NumpyFunction):
   def __init__(self, domain=core.Domain(min=-5.0, max=10.0)):
     super().__init__(domain)
 
-  def call(self, x: np.ndarray):
+  def __call__(self, x: np.ndarray):
     d = x.shape[-1]
 
     sum1 = np.sum(x * x, axis=-1)
@@ -148,7 +142,7 @@ class Bohachevsky(NumpyFunction):
   def __init__(self, domain=core.Domain(min=-100.0, max=100.0)):
     super().__init__(domain)
 
-  def call(self, x: np.ndarray):
+  def __call__(self, x: np.ndarray):
     d = x.shape[-1]
     assert d == 2
 
@@ -168,7 +162,7 @@ class SumSquares(NumpyFunction):
   def __init__(self, domain=core.Domain(min=-10.0, max=10.0)):
     super().__init__(domain)
 
-  def call(self, x: np.ndarray):
+  def __call__(self, x: np.ndarray):
     d = x.shape[-1]
     mul = np.arange(start=1, stop=(d + 1), dtype=x.dtype)
     result = np.sum((x ** 2) * mul, axis=-1)
@@ -185,7 +179,7 @@ class Sphere(NumpyFunction):
   def __init__(self, domain=core.Domain(min=-5.12, max=5.12)):
     super().__init__(domain)
 
-  def call(self, x: np.ndarray):
+  def __call__(self, x: np.ndarray):
     result = np.sum(x * x, axis=-1)
 
     if result.dtype != x.dtype:
@@ -200,7 +194,7 @@ class RotatedHyperEllipsoid(NumpyFunction):
   def __init__(self, domain=core.Domain(min=-65.536, max=65.536)):
     super().__init__(domain)
 
-  def call(self, x: np.ndarray):
+  def __call__(self, x: np.ndarray):
     x = np.atleast_2d(x)
     mat = x[:, None].repeat(x.shape[-1], axis=1)
     matlow = np.tril(mat)
@@ -219,7 +213,7 @@ class DixonPrice(NumpyFunction):
   def __init__(self, domain=core.Domain(-10, 10)):
     super().__init__(domain)
 
-  def call(self, x: np.ndarray):
+  def __call__(self, x: np.ndarray):
     x = np.atleast_2d(x)
     x0 = x[:, 0]
     d = x.shape[-1]
