@@ -8,6 +8,7 @@ import tensorflow as tf
 from optfuncs import core
 from optfuncs import numpy_functions as npf
 from optfuncs import tensorflow_functions as tff
+from optfuncs import tf_wrappers
 
 # TODO: Check how to run R implementation in this test
 
@@ -141,7 +142,8 @@ class TestTensorflowFunctions(unittest.TestCase):
     return tf.repeat(tf.expand_dims(array_result, 0), self.batch_size, 0)
 
   # Test a given function
-  def default_test(self, f: core.Function):
+  def default_test(self, f):
+    f = tf_wrappers.GrandientWrapper(f)
     array_result = tf.constant(array_lookup[f.name], self.dtype)
     batch_result = self.batch_result(array_result)
     zero_result = tf.constant(zero_lookup[f.name], self.dtype)
@@ -149,7 +151,8 @@ class TestTensorflowFunctions(unittest.TestCase):
     # Test default value [1,2,3,4]
     result = f(self.array)
     self.assertEqual(result, array_result)
-    # self.assertTrue(all(f.gradients == array_grads_lookup[f.name]))
+    self.assertTrue(all(f.gradients == array_grads_lookup[f.name]),
+                    'Gradients not working.')
 
     # Test batch of default value [[1,2,3,4],[1,2,3,4], ...]
     result = f(self.batch)
