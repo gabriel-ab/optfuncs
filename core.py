@@ -1,4 +1,4 @@
-"""Classes base para todas funções."""
+"""Core classes for implementing new functions."""
 
 import abc
 import typing
@@ -10,7 +10,7 @@ class Domain(typing.NamedTuple):
 
 
 class Function:
-  """Classe base para todas funções."""
+  """Function's base class."""
 
   def __init__(self, domain: Domain):
     assert domain is not None
