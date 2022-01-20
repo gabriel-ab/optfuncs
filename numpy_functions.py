@@ -246,14 +246,12 @@ class DixonPrice(NumpyFunction):
     return np.squeeze(result)
 
 
-@DeprecationWarning
 def get_tf_function(function: NumpyFunction):
   domain = function.domain
   f = getattr(tff, function.name)
   return f(domain)
 
 
-@DeprecationWarning
 def list_all_functions() -> typing.List[NumpyFunction]:
   return [Ackley(), Griewank(), Rastrigin(), Levy(), Rosenbrock(), Zakharov(),
           Bohachevsky(), SumSquares(), Sphere(), RotatedHyperEllipsoid(),
