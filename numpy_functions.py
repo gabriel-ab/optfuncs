@@ -1,4 +1,5 @@
-"""Implementação das diferentes funções de benchmark em NumPy."""
+"""NumPy's implementation of many functions."""
+
 import abc
 import typing
 
@@ -12,13 +13,15 @@ class NumpyFunction(core.Function):
   def __call__(self, x: np.ndarray) -> np.ndarray:
     return self._fn(x)
 
-  def grads(self, x: np.ndarray) -> np.ndarray:
+  def grads(self, x: np.ndarray):
     raise NotImplementedError("Gradients for NumPy functions are "
                               "not implemented yet.")
+    pass
 
-  def grads_at(self, x: np.ndarray) -> typing.Tuple[np.ndarray, np.ndarray]:
+  def grads_at(self, x: np.ndarray):
     raise NotImplementedError("Gradients for NumPy functions are "
                               "not implemented yet.")
+    pass
 
   @abc.abstractmethod
   def _call(self, x: np.ndarray) -> np.ndarray:
@@ -243,13 +246,14 @@ class DixonPrice(NumpyFunction):
     return np.squeeze(result)
 
 
-# Função utilitária para obter uma função equivalente de Numpy em Tensorflow.
+@DeprecationWarning
 def get_tf_function(function: NumpyFunction):
   domain = function.domain
   f = getattr(tff, function.name)
   return f(domain)
 
 
+@DeprecationWarning
 def list_all_functions() -> typing.List[NumpyFunction]:
   return [Ackley(), Griewank(), Rastrigin(), Levy(), Rosenbrock(), Zakharov(),
           Bohachevsky(), SumSquares(), Sphere(), RotatedHyperEllipsoid(),

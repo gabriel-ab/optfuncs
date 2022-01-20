@@ -1,4 +1,4 @@
-"""TensorFlow implementation of many different functions."""
+"""TensorFlow's implementation of many functions."""
 
 import abc
 import typing
