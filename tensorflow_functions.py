@@ -60,10 +60,11 @@ class Ackley(TensorflowFunction):
 
   def _call(self, x: tf.Tensor):
     d = tf.constant(x.shape[-1], x.dtype)
-    sum1 = tf.reduce_sum(x * x, axis=-1)
+    sum1 = tf.reduce_sum(tf.math.pow(x, 2), axis=-1)
     sum2 = tf.reduce_sum(tf.cos(tf.math.multiply(x, self.c)), axis=-1)
-    term1 = -self.a * tf.exp(-self.b * tf.sqrt(sum1 / d))
-    term2 = tf.exp(sum2 / d)
+    term1 = tf.math.multiply(tf.exp(
+      tf.math.multiply(tf.sqrt(tf.math.divide(sum1, d)), -self.b)), -self.a)
+    term2 = tf.exp(tf.math.divide(sum2, d))
     result = term1 - term2 + self.a + e
     return result
 
@@ -81,7 +82,7 @@ class Griewank(TensorflowFunction):
     griewank_sum = tf.divide(tf.reduce_sum(tf.math.pow(x, 2), axis=-1), 4000)
     den = tf.range(1, shape[-1] + 1, dtype=x.dtype)
     den = tf.repeat(tf.expand_dims(den, 0), shape[0], axis=0)
-    prod = tf.cos(x / tf.sqrt(den))
+    prod = tf.cos(tf.math.divide(x, tf.sqrt(den)))
     prod = tf.reduce_prod(prod, axis=-1)
     return tf.squeeze(griewank_sum - prod + 1)
 
@@ -92,8 +93,9 @@ class Rastrigin(TensorflowFunction):
 
   def _call(self, x: tf.Tensor):
     d = x.shape[-1]
-    return 10 * d + tf.reduce_sum(x ** 2 - 10 *
-                                  tf.cos(x * 2 * pi), axis=-1)
+    return (10 * d) + tf.reduce_sum(tf.math.pow(x, 2) -
+                                    (10 * tf.cos(
+                                      tf.math.multiply(x, 2*pi))), axis=-1)
 
 
 class Levy(TensorflowFunction):
@@ -106,14 +108,15 @@ class Levy(TensorflowFunction):
   def _call(self, x: tf.Tensor):
     x = atleast_2d(x)
     d = tf.shape(x)[-1] - 1
-    w = 1 + (x - 1) / 4
+    w = 1 + tf.math.divide(tf.math.subtract(x, 1), 4)
 
-    term1 = tf.sin(pi * w[:, 0]) ** 2
+    term1 = tf.math.pow(tf.sin(pi * w[:, 0]), 2)
     wd = w[:, d]
-    term3 = (wd - 1) ** 2 * (1 + tf.sin(2 * pi * wd) ** 2)
+    term3 = tf.math.pow(wd - 1, 2) * (1 + tf.math.pow(tf.sin(2 * pi * wd), 2))
     wi = w[:, 0:d]
-    levy_sum = tf.reduce_sum((wi - 1) ** 2 *
-                             (1 + 10 * tf.sin(pi * wi + 1) ** 2), axis=-1)
+    levy_sum = tf.reduce_sum(tf.math.pow((wi - 1), 2) *
+                             (1 + 10 * tf.math.pow(tf.sin(pi * wi + 1), 2)),
+                             axis=-1)
     return tf.squeeze(term1 + levy_sum + term3)
 
 
@@ -128,8 +131,8 @@ class Rosenbrock(TensorflowFunction):
     x = atleast_2d(x)
     xi = x[:, :-1]
     xnext = x[:, 1:]
-    result = tf.reduce_sum(100 * (xnext - xi ** 2) ** 2 + (xi - 1) ** 2,
-                           axis=-1)
+    result = tf.reduce_sum(100 * tf.math.pow(xnext - tf.math.pow(xi, 2), 2) +
+                           tf.math.pow(xi - 1, 2), axis=-1)
     return tf.squeeze(result)
 
 
@@ -142,9 +145,10 @@ class Zakharov(TensorflowFunction):
 
   def _call(self, x: tf.Tensor):
     d = x.shape[-1]
-    sum1 = tf.reduce_sum(x * x, axis=-1)
-    sum2 = tf.reduce_sum(x * tf.range(1, (d + 1), dtype=x.dtype) / 2, axis=-1)
-    return sum1 + sum2 ** 2 + sum2 ** 4
+    sum1 = tf.reduce_sum(tf.math.pow(x, 2), axis=-1)
+    sum2 = tf.reduce_sum(tf.math.divide(
+      tf.math.multiply(x, tf.range(1, (d + 1), dtype=x.dtype)), 2), axis=-1)
+    return sum1 + tf.math.pow(sum2, 2) + tf.math.pow(sum2, 4)
 
 
 class Bohachevsky(TensorflowFunction):
@@ -172,7 +176,7 @@ class SumSquares(TensorflowFunction):
 
   def _call(self, x: tf.Tensor):
     mul = tf.range(1, x.shape[-1] + 1, dtype=x.dtype)
-    return tf.reduce_sum((x ** 2) * mul, axis=-1)
+    return tf.reduce_sum(tf.math.pow(x, 2) * mul, axis=-1)
 
 
 class Sphere(TensorflowFunction):
@@ -183,7 +187,7 @@ class Sphere(TensorflowFunction):
     super(Sphere, self).__init__(domain)
 
   def _call(self, x: tf.Tensor):
-    return tf.reduce_sum(x * x, axis=-1)
+    return tf.reduce_sum(tf.math.pow(x, 2), axis=-1)
 
 
 class RotatedHyperEllipsoid(TensorflowFunction):
