@@ -234,14 +234,12 @@ def atleast_2d(tensor: tf.Tensor) -> tf.Tensor:
                  lambda: tensor)
 
 
-@DeprecationWarning
 def list_all_functions() -> typing.List[core.Function]:
   return [Ackley(), Griewank(), Rastrigin(), Levy(), Rosenbrock(), Zakharov(),
           Bohachevsky(), SumSquares(), Sphere(), RotatedHyperEllipsoid(),
           DixonPrice()]
 
 
-@DeprecationWarning
 def get_grads(fun: TensorflowFunction, pos: tf.Tensor):
   """Deprecated. fun.grads_at(pos) instead. """
   if pos.dtype != tf.float32:
@@ -254,8 +252,6 @@ def get_grads(fun: TensorflowFunction, pos: tf.Tensor):
   return tape.gradient(y, pos), y
 
 
-# Função utilitária para obter uma função equivalente de TensorFlow em Numpy.
-@DeprecationWarning
 def get_np_function(function: core.Function):
   domain = function.domain
   f = getattr(npf, function.name)
