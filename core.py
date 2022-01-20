@@ -15,7 +15,7 @@ class Function:
   def __init__(self, domain: Domain):
     assert domain is not None
     self._domain = domain
-    self._fn = self.call
+    self._fn = self._call
 
   def __call__(self, x):
     return self._fn(x)
@@ -36,7 +36,18 @@ class Function:
     return self.__class__.__name__
 
   @abc.abstractmethod
-  def call(self, x):
+  def grads(self, x):
+    """Returns the gradients of the function at x.
+    """
+    pass
+
+  @abc.abstractmethod
+  def grads_at(self, x):
+    """Returns a tuple containing f(x) and grad(x)."""
+    pass
+
+  @abc.abstractmethod
+  def _call(self, x):
     """Default call interface
     This method must have the default implementation of the function.
     """
