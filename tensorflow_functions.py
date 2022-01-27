@@ -76,6 +76,52 @@ class Ackley(TensorflowFunction):
     return result
 
 
+class BentCigar(TensorflowFunction):
+  """BentCigar function defined in [2].
+  Implementation doesn't support batch yet.
+  """
+
+  def __init__(self, domain: core.Domain = core.Domain(min=0.0, max=10.0)):
+    super(BentCigar, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    return tf.pow(x[0], 2) + tf.multiply(tf.reduce_sum(tf.pow(x[1:], 2),
+                                                       axis=-1), 1e6)
+
+
+class Bohachevsky(TensorflowFunction):
+  """Bohachevsky function 1 defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-100.0, max=100.0)):
+    super(Bohachevsky, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    d = x.shape[-1]
+    tf.assert_equal(d, 2)
+
+    return tf.pow(x[0], 2) + tf.math.multiply(2, tf.pow(x[1], 2)) - \
+           tf.math.multiply(0.3, tf.cos(3 * pi * x[0])) - \
+           tf.math.multiply(0.4, tf.cos(4 * pi * x[1])) + 0.7
+
+
+class DixonPrice(TensorflowFunction):
+  """Dixon-Price function defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-10.0, max=10.0)):
+    super(DixonPrice, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    x = atleast_2d(x)
+    d = tf.shape(x)[-1]
+    x0 = x[:, 0]
+    ii = tf.range(2.0, d + 1, dtype=x.dtype)
+    xi = x[:, 1:]
+    xold = x[:, :-1]
+    dixon_sum = ii * tf.pow(2 * tf.pow(xi, 2) - xold, 2)
+    result = tf.pow(x0 - 1, 2) + tf.reduce_sum(dixon_sum, -1)
+    return tf.squeeze(result)
+
+
 class Griewank(TensorflowFunction):
   """Griewank function defined in [1]."""
 
@@ -91,18 +137,6 @@ class Griewank(TensorflowFunction):
     prod = tf.cos(tf.math.divide(x, tf.sqrt(den)))
     prod = tf.reduce_prod(prod, axis=-1)
     return tf.squeeze(griewank_sum - prod + 1)
-
-
-class Rastrigin(TensorflowFunction):
-  """Rastrigin function defined in [2]. Search range may vary."""
-  def __init__(self, domain: core.Domain = core.Domain(min=-5.12, max=5.12)):
-    super(Rastrigin, self).__init__(domain)
-
-  def _call(self, x: tf.Tensor):
-    d = x.shape[-1]
-    return (10 * d) + tf.reduce_sum(tf.math.pow(x, 2) -
-                                    (10 * tf.cos(tf.math.multiply(x, 2*pi))),
-                                    axis=-1)
 
 
 class Levy(TensorflowFunction):
@@ -126,6 +160,18 @@ class Levy(TensorflowFunction):
     return tf.squeeze(term1 + levy_sum + term3)
 
 
+class Rastrigin(TensorflowFunction):
+  """Rastrigin function defined in [2]. Search range may vary."""
+  def __init__(self, domain: core.Domain = core.Domain(min=-5.12, max=5.12)):
+    super(Rastrigin, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    d = x.shape[-1]
+    return (10 * d) + tf.reduce_sum(tf.math.pow(x, 2) -
+                                    (10 * tf.cos(tf.math.multiply(x, 2*pi))),
+                                    axis=-1)
+
+
 class Rosenbrock(TensorflowFunction):
   """Rosenbrock function defined in [1]."""
 
@@ -141,33 +187,21 @@ class Rosenbrock(TensorflowFunction):
     return tf.squeeze(result)
 
 
-class Zakharov(TensorflowFunction):
-  """Zakharov function defined in [1]."""
+class RotatedHyperEllipsoid(TensorflowFunction):
+  """Rotated Hyper-Ellipsoid function defined in [4]."""
 
-  def __init__(self, domain: core.Domain = core.Domain(min=-5.0, max=10.0)):
-    super(Zakharov, self).__init__(domain)
-
-  def _call(self, x: tf.Tensor):
-    d = x.shape[-1]
-    sum1 = tf.reduce_sum(tf.math.pow(x, 2), axis=-1)
-    sum2 = tf.reduce_sum(tf.math.divide(
-      tf.math.multiply(x, tf.range(1, (d + 1), dtype=x.dtype)), 2), axis=-1)
-    return sum1 + tf.math.pow(sum2, 2) + tf.math.pow(sum2, 4)
-
-
-class Bohachevsky(TensorflowFunction):
-  """Bohachevsky function 1 defined in [1]."""
-
-  def __init__(self, domain: core.Domain = core.Domain(min=-100.0, max=100.0)):
-    super(Bohachevsky, self).__init__(domain)
+  def __init__(self,
+               domain: core.Domain = core.Domain(min=-65.536, max=65.536)):
+    super(RotatedHyperEllipsoid, self).__init__(domain)
 
   def _call(self, x: tf.Tensor):
-    d = x.shape[-1]
-    tf.assert_equal(d, 2)
-
-    return tf.pow(x[0], 2) + tf.math.multiply(2, tf.pow(x[1], 2)) - \
-           tf.math.multiply(0.3, tf.cos(3 * pi * x[0])) - \
-           tf.math.multiply(0.4, tf.cos(4 * pi * x[1])) + 0.7
+    x = atleast_2d(x)
+    d = tf.shape(x)[-1]
+    mat = tf.repeat(tf.expand_dims(x, 1), d, 1)
+    matlow = tf.linalg.band_part(mat, -1, 0)
+    inner = tf.reduce_sum(matlow ** 2, -1)
+    result = tf.reduce_sum(inner, -1)
+    return tf.squeeze(result)
 
 
 class SumSquares(TensorflowFunction):
@@ -191,52 +225,18 @@ class Sphere(TensorflowFunction):
     return tf.reduce_sum(tf.math.pow(x, 2), axis=-1)
 
 
-class BentCigar(TensorflowFunction):
-  """BentCigar function defined in [2].
-  Implementation doesn't support batch yet.
-  """
+class Zakharov(TensorflowFunction):
+  """Zakharov function defined in [1]."""
 
-  def __init__(self, domain: core.Domain = core.Domain(min=0.0, max=10.0)):
-    super(BentCigar, self).__init__(domain)
+  def __init__(self, domain: core.Domain = core.Domain(min=-5.0, max=10.0)):
+    super(Zakharov, self).__init__(domain)
 
   def _call(self, x: tf.Tensor):
-    return tf.pow(x[0], 2) + tf.multiply(tf.reduce_sum(tf.pow(x[1:], 2),
-                                                       axis=-1), 1e6)
-
-
-class RotatedHyperEllipsoid(TensorflowFunction):
-  """Rotated Hyper-Ellipsoid function defined in [4]."""
-
-  def __init__(self,
-               domain: core.Domain = core.Domain(min=-65.536, max=65.536)):
-    super(RotatedHyperEllipsoid, self).__init__(domain)
-
-  def _call(self, x: tf.Tensor):
-    x = atleast_2d(x)
-    d = tf.shape(x)[-1]
-    mat = tf.repeat(tf.expand_dims(x, 1), d, 1)
-    matlow = tf.linalg.band_part(mat, -1, 0)
-    inner = tf.reduce_sum(matlow ** 2, -1)
-    result = tf.reduce_sum(inner, -1)
-    return tf.squeeze(result)
-
-
-class DixonPrice(TensorflowFunction):
-  """Dixon-Price function defined in [1]."""
-
-  def __init__(self, domain: core.Domain = core.Domain(min=-10.0, max=10.0)):
-    super(DixonPrice, self).__init__(domain)
-
-  def _call(self, x: tf.Tensor):
-    x = atleast_2d(x)
-    d = tf.shape(x)[-1]
-    x0 = x[:, 0]
-    ii = tf.range(2.0, d + 1, dtype=x.dtype)
-    xi = x[:, 1:]
-    xold = x[:, :-1]
-    dixon_sum = ii * tf.pow(2 * tf.pow(xi, 2) - xold, 2)
-    result = tf.pow(x0 - 1, 2) + tf.reduce_sum(dixon_sum, -1)
-    return tf.squeeze(result)
+    d = x.shape[-1]
+    sum1 = tf.reduce_sum(tf.math.pow(x, 2), axis=-1)
+    sum2 = tf.reduce_sum(tf.math.divide(
+      tf.math.multiply(x, tf.range(1, (d + 1), dtype=x.dtype)), 2), axis=-1)
+    return sum1 + tf.math.pow(sum2, 2) + tf.math.pow(sum2, 4)
 
 
 def atleast_2d(tensor: tf.Tensor) -> tf.Tensor:
