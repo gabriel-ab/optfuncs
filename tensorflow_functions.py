@@ -191,6 +191,19 @@ class Sphere(TensorflowFunction):
     return tf.reduce_sum(tf.math.pow(x, 2), axis=-1)
 
 
+class BentCigar(TensorflowFunction):
+  """BentCigar function defined in [2].
+  Implementation doesn't support batch yet.
+  """
+
+  def __init__(self, domain: core.Domain = core.Domain(min=0.0, max=10.0)):
+    super(BentCigar, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    return tf.pow(x[0], 2) + tf.multiply(tf.reduce_sum(tf.pow(x[1:], 2),
+                                                       axis=-1), 1e6)
+
+
 class RotatedHyperEllipsoid(TensorflowFunction):
   """Rotated Hyper-Ellipsoid function defined in [4]."""
 

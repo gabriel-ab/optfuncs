@@ -21,6 +21,7 @@ array_lookup = {
   "Zakharov": 50880.0,
   "SumSquares": 100.0,
   "Sphere": 30.0,
+  "BentCigar": 29000001.0,
   "RotatedHyperEllipsoid": 50.0,
   "DixonPrice": 4230.0,
 }
@@ -35,6 +36,7 @@ zero_lookup = {
   "Zakharov": 0.0,
   "SumSquares": 0.0,
   "Sphere": 0.0,
+  "BentCigar": 0.0,
   "RotatedHyperEllipsoid": 0.0,
   "DixonPrice": 1.0,
 }
@@ -129,7 +131,7 @@ class TestTensorflowFunctions(unittest.TestCase):
     return tf.repeat(tf.expand_dims(array_result, 0), self.batch_size, 0)
 
   # Test a given function
-  def default_test(self, f: tff.TensorflowFunction):
+  def default_test(self, f: tff.TensorflowFunction, relax_batch=False):
     array_result = tf.constant(array_lookup[f.name], self.dtype)
     batch_result = self.batch_result(array_result)
     zero_result = tf.constant(zero_lookup[f.name], self.dtype)
@@ -138,13 +140,14 @@ class TestTensorflowFunctions(unittest.TestCase):
     result = f(self.array)
     tf.debugging.assert_near(result, array_result)
 
-    # Test batch of default value [[1,2,3,4],[1,2,3,4], ...]
-    result = f(self.batch)
-    self.assertTrue(tf.reduce_all(result == batch_result))
-    self.assertEqual(result.shape, batch_result.shape)
+    if not relax_batch:
+      # Test batch of default value [[1,2,3,4],[1,2,3,4], ...]
+      result = f(self.batch)
+      self.assertTrue(tf.reduce_all(result == batch_result))
+      self.assertEqual(result.shape, batch_result.shape)
 
-    result = f(self.zeros)
-    tf.debugging.assert_near(result, zero_result)
+      result = f(self.zeros)
+      tf.debugging.assert_near(result, zero_result)
 
     # Testing Tracing
     f = tf.function(f)
@@ -157,9 +160,9 @@ class TestTensorflowFunctions(unittest.TestCase):
     self.assertEqual(result.shape, array_result.shape)
     self.assertEqual(result.dtype, array_result.dtype)
 
-  def tf_function_test(self, f: tff.TensorflowFunction):
+  def tf_function_test(self, f: tff.TensorflowFunction, relax_batch=False):
     f.enable_tf_function()
-    self.default_test(f)
+    self.default_test(f, relax_batch)
     f.disable_tf_function()
 
   def test_ackley(self):
@@ -193,6 +196,10 @@ class TestTensorflowFunctions(unittest.TestCase):
   def test_sphere(self):
     self.default_test(tff.Sphere())
     self.tf_function_test(tff.Sphere())
+
+  def test_bent_cigar(self):
+    self.default_test(tff.BentCigar(), True)
+    self.tf_function_test(tff.BentCigar(), True)
 
   def test_rotated_hyper_ellipsoid(self):
     self.default_test(tff.RotatedHyperEllipsoid())
