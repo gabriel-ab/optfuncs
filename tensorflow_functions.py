@@ -1,4 +1,12 @@
-"""TensorFlow's implementation of many functions."""
+"""TensorFlow's implementation of many functions.
+References:
+  [1] Momin Jamil and Xin-She Yang.
+      A Literature Survey of Benchmark Functions For Global
+        Optimization Problems, 2013. (10.1504/IJMMNO.2013.055204)
+  [2] IEEE CEC 2021 C-2 (https://cec2021.mini.pw.edu.pl/en/program/competitions)
+  [3] IEEE CEC 2021 C-3 (https://cec2021.mini.pw.edu.pl/en/program/competitions)
+  [4] https://www.sfu.ca/~ssurjano/optimization.html
+"""
 
 import abc
 import typing
@@ -46,11 +54,10 @@ class TensorflowFunction(core.Function):
 
 
 class Ackley(TensorflowFunction):
-  """Ackley function as defined in:
-  https://www.sfu.ca/~ssurjano/ackley.html."""
+  """Ackley function 1 defined in [1]."""
 
   def __init__(self,
-               domain: core.Domain = core.Domain(min=-32.768, max=32.768),
+               domain: core.Domain = core.Domain(min=-35.0, max=35.0),
                a=20,
                b=0.2, c=2 * pi):
     super(Ackley, self).__init__(domain)
@@ -70,10 +77,9 @@ class Ackley(TensorflowFunction):
 
 
 class Griewank(TensorflowFunction):
-  """Griewank function as defined in:
-  https://www.sfu.ca/~ssurjano/griewank.html."""
+  """Griewank function defined in [1]."""
 
-  def __init__(self, domain: core.Domain = core.Domain(min=-600.0, max=600.0)):
+  def __init__(self, domain: core.Domain = core.Domain(min=-100.0, max=100.0)):
     super(Griewank, self).__init__(domain)
 
   def _call(self, x: tf.Tensor):
@@ -88,19 +94,19 @@ class Griewank(TensorflowFunction):
 
 
 class Rastrigin(TensorflowFunction):
+  """Rastrigin function defined in [2]. Search range may vary."""
   def __init__(self, domain: core.Domain = core.Domain(min=-5.12, max=5.12)):
     super(Rastrigin, self).__init__(domain)
 
   def _call(self, x: tf.Tensor):
     d = x.shape[-1]
     return (10 * d) + tf.reduce_sum(tf.math.pow(x, 2) -
-                                    (10 * tf.cos(
-                                      tf.math.multiply(x, 2*pi))), axis=-1)
+                                    (10 * tf.cos(tf.math.multiply(x, 2*pi))),
+                                    axis=-1)
 
 
 class Levy(TensorflowFunction):
-  """Levy function as defined in:
-  https://www.sfu.ca/~ssurjano/levy.html."""
+  """Levy function defined in [4]."""
 
   def __init__(self, domain: core.Domain = core.Domain(min=-10.0, max=10.0)):
     super(Levy, self).__init__(domain)
@@ -121,10 +127,9 @@ class Levy(TensorflowFunction):
 
 
 class Rosenbrock(TensorflowFunction):
-  """Rosenbrock function as defined in:
-  https://www.sfu.ca/~ssurjano/rosen.html."""
+  """Rosenbrock function defined in [1]."""
 
-  def __init__(self, domain: core.Domain = core.Domain(min=-5.0, max=10.0)):
+  def __init__(self, domain: core.Domain = core.Domain(min=-30.0, max=30.0)):
     super(Rosenbrock, self).__init__(domain)
 
   def _call(self, x: tf.Tensor):
@@ -137,8 +142,7 @@ class Rosenbrock(TensorflowFunction):
 
 
 class Zakharov(TensorflowFunction):
-  """Zakharov function as defined in:
-  https://www.sfu.ca/~ssurjano/zakharov.html."""
+  """Zakharov function defined in [1]."""
 
   def __init__(self, domain: core.Domain = core.Domain(min=-5.0, max=10.0)):
     super(Zakharov, self).__init__(domain)
@@ -152,8 +156,7 @@ class Zakharov(TensorflowFunction):
 
 
 class Bohachevsky(TensorflowFunction):
-  """Bohachevsky function (f1, 2 dims only) as defined in:
-  https://www.sfu.ca/~ssurjano/boha.html."""
+  """Bohachevsky function 1 defined in [1]."""
 
   def __init__(self, domain: core.Domain = core.Domain(min=-100.0, max=100.0)):
     super(Bohachevsky, self).__init__(domain)
@@ -168,22 +171,20 @@ class Bohachevsky(TensorflowFunction):
 
 
 class SumSquares(TensorflowFunction):
-  """SumSquares function as defined in:
-  https://www.sfu.ca/~ssurjano/sumsqu.html."""
+  """Sum Squares function defined in [1]."""
 
   def __init__(self, domain: core.Domain = core.Domain(min=-10.0, max=10.0)):
     super(SumSquares, self).__init__(domain)
 
   def _call(self, x: tf.Tensor):
     mul = tf.range(1, x.shape[-1] + 1, dtype=x.dtype)
-    return tf.reduce_sum(tf.math.pow(x, 2) * mul, axis=-1)
+    return tf.reduce_sum(tf.math.multiply(tf.math.pow(x, 2), mul), axis=-1)
 
 
 class Sphere(TensorflowFunction):
-  """Sphere function as defined in:
-  https://www.sfu.ca/~ssurjano/spheref.html."""
+  """Sphere function defined in [1]."""
 
-  def __init__(self, domain: core.Domain = core.Domain(min=-5.12, max=5.12)):
+  def __init__(self, domain: core.Domain = core.Domain(min=0.0, max=10.0)):
     super(Sphere, self).__init__(domain)
 
   def _call(self, x: tf.Tensor):
@@ -191,8 +192,7 @@ class Sphere(TensorflowFunction):
 
 
 class RotatedHyperEllipsoid(TensorflowFunction):
-  """Rotated Hyper-Ellipsoid function as defined in:
-  https://www.sfu.ca/~ssurjano/rothyp.html."""
+  """Rotated Hyper-Ellipsoid function defined in [4]."""
 
   def __init__(self,
                domain: core.Domain = core.Domain(min=-65.536, max=65.536)):
@@ -209,10 +209,9 @@ class RotatedHyperEllipsoid(TensorflowFunction):
 
 
 class DixonPrice(TensorflowFunction):
-  """Dixon-Price function as defined in:
-  https://www.sfu.ca/~ssurjano/dixonpr.html."""
+  """Dixon-Price function defined in [1]."""
 
-  def __init__(self, domain: core.Domain = core.Domain(-10, 10)):
+  def __init__(self, domain: core.Domain = core.Domain(min=-10.0, max=10.0)):
     super(DixonPrice, self).__init__(domain)
 
   def _call(self, x: tf.Tensor):
@@ -222,8 +221,8 @@ class DixonPrice(TensorflowFunction):
     ii = tf.range(2.0, d + 1, dtype=x.dtype)
     xi = x[:, 1:]
     xold = x[:, :-1]
-    dixon_sum = ii * (2 * xi ** 2 - xold) ** 2
-    result = (x0 - 1) ** 2 + tf.reduce_sum(dixon_sum, -1)
+    dixon_sum = ii * tf.pow(2 * tf.pow(xi, 2) - xold, 2)
+    result = tf.pow(x0 - 1, 2) + tf.reduce_sum(dixon_sum, -1)
     return tf.squeeze(result)
 
 
@@ -235,6 +234,7 @@ def atleast_2d(tensor: tf.Tensor) -> tf.Tensor:
 
 
 def list_all_functions() -> typing.List[core.Function]:
+  """Deprecated. Manually collect all functions."""
   return [Ackley(), Griewank(), Rastrigin(), Levy(), Rosenbrock(), Zakharov(),
           Bohachevsky(), SumSquares(), Sphere(), RotatedHyperEllipsoid(),
           DixonPrice()]
@@ -253,6 +253,7 @@ def get_grads(fun: TensorflowFunction, pos: tf.Tensor):
 
 
 def get_np_function(function: core.Function):
+  """Deprecated. Manually convert functions."""
   domain = function.domain
   f = getattr(npf, function.name)
   return f(domain)
