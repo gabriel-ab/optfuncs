@@ -22,6 +22,8 @@ array_lookup = {
   "SumSquares": 100.0,
   "Sphere": 30.0,
   "BentCigar": 29000001.0,
+  "PowellSum": 1114.0,
+  "SchumerSteiglitz": 354.0,
   "RotatedHyperEllipsoid": 50.0,
   "DixonPrice": 4230.0,
 }
@@ -37,6 +39,8 @@ zero_lookup = {
   "SumSquares": 0.0,
   "Sphere": 0.0,
   "BentCigar": 0.0,
+  "PowellSum": 0.0,
+  "SchumerSteiglitz": 0.0,
   "RotatedHyperEllipsoid": 0.0,
   "DixonPrice": 1.0,
 }
@@ -200,6 +204,14 @@ class TestTensorflowFunctions(unittest.TestCase):
   def test_bent_cigar(self):
     self.default_test(tff.BentCigar(), True)
     self.tf_function_test(tff.BentCigar(), True)
+
+  def test_schumer_steiglitz(self):
+    self.default_test(tff.SchumerSteiglitz(), True)
+    self.tf_function_test(tff.SchumerSteiglitz(), True)
+
+  def test_powell_sum(self):
+    self.default_test(tff.PowellSum(), True)
+    self.tf_function_test(tff.PowellSum(), True)
 
   def test_rotated_hyper_ellipsoid(self):
     self.default_test(tff.RotatedHyperEllipsoid())

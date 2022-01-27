@@ -160,6 +160,18 @@ class Levy(TensorflowFunction):
     return tf.squeeze(term1 + levy_sum + term3)
 
 
+class PowellSum(TensorflowFunction):
+  """Powell Sum function defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-1.0, max=1.0)):
+    super(PowellSum, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    d = x.shape[-1]
+    indices = tf.range(start=1, limit=d+1, dtype=x.dtype)
+    return tf.reduce_sum(tf.pow(tf.math.abs(x), indices + 1))
+
+
 class Rastrigin(TensorflowFunction):
   """Rastrigin function defined in [2]. Search range may vary."""
   def __init__(self, domain: core.Domain = core.Domain(min=-5.12, max=5.12)):
@@ -213,6 +225,16 @@ class SumSquares(TensorflowFunction):
   def _call(self, x: tf.Tensor):
     mul = tf.range(1, x.shape[-1] + 1, dtype=x.dtype)
     return tf.reduce_sum(tf.math.multiply(tf.math.pow(x, 2), mul), axis=-1)
+  
+
+class SchumerSteiglitz(TensorflowFunction):
+  """Schumer Steiglitz function defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-10.0, max=10.0)):
+    super(SchumerSteiglitz, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    return tf.reduce_sum(tf.pow(x, 4), axis=-1)
 
 
 class Sphere(TensorflowFunction):
