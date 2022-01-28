@@ -114,6 +114,16 @@ class Bohachevsky(TensorflowFunction):
            tf.math.multiply(tf.cos(4 * pi * x[1]), 0.4) + 0.7
 
 
+class ChungReynolds(TensorflowFunction):
+  """Chung Reynolds function defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-100.0, max=100.0)):
+    super(ChungReynolds, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    return tf.pow(tf.reduce_sum(tf.pow(x, 2), axis=-1), 2)
+
+
 class Csendes(TensorflowFunction):
   """Csendes function defined in [1]."""
 
@@ -121,8 +131,11 @@ class Csendes(TensorflowFunction):
     super(Csendes, self).__init__(domain)
 
   def _call(self, x: tf.Tensor):
-    return tf.reduce_sum(tf.multiply(tf.pow(x, 6), 2 + tf.sin(tf.divide(1, x))),
-                         axis=-1)
+    return tf.cond(tf.equal(tf.reduce_prod(x), 0),
+                   lambda: tf.constant(0, dtype=x.dtype),
+                   lambda: tf.reduce_sum(tf.multiply(tf.pow(x, 6), 2 +
+                                                     tf.sin(tf.divide(1, x))),
+                                         axis=-1))
 
 
 class Deb1(TensorflowFunction):
@@ -289,6 +302,19 @@ class SumSquares(TensorflowFunction):
     return tf.reduce_sum(tf.math.multiply(tf.math.pow(x, 2), mul), axis=-1)
 
 
+class Schwefel(TensorflowFunction):
+  """Schwefel function defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-100.0, max=100.0),
+               a: float = pi):
+    super(Schwefel, self).__init__(domain)
+    self._a = a
+
+  def _call(self, x: tf.Tensor):
+    a = tf.cast(self._a, dtype=x.dtype)
+    return tf.pow(tf.reduce_sum(tf.pow(x, 2), axis=-1), a)
+
+
 class Schwefel226(TensorflowFunction):
   """Schwefel 2.26 function defined in [1]."""
 
@@ -343,12 +369,13 @@ class Weierstrass(TensorflowFunction):
     ak = tf.pow(a, kindices)
     bk = tf.pow(b, kindices)
 
-    ak_bk_sum = d*tf.reduce_sum(tf.multiply(ak, tf.cos(tf.multiply(bk, pi))),
-                                axis=-1)
+    ak_bk_sum = d * tf.reduce_sum(tf.multiply(ak, tf.cos(tf.multiply(bk, pi))),
+                                  axis=-1)
 
     def fn(acc, xi):
-      s = tf.reduce_sum(tf.multiply(ak, tf.cos(tf.multiply(2*pi*bk, xi + 0.5))),
-                        axis=-1)
+      s = tf.reduce_sum(
+        tf.multiply(ak, tf.cos(tf.multiply(2 * pi * bk, xi + 0.5))),
+        axis=-1)
       return acc + (s - ak_bk_sum)
 
     return tf.foldl(fn, x, initializer=tf.cast(0, dtype=x.dtype))

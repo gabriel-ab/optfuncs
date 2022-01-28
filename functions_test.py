@@ -2,6 +2,7 @@
 
 import unittest
 
+import numpy
 import numpy as np
 import tensorflow as tf
 
@@ -28,6 +29,8 @@ array_lookup = {
   "Deb1": -6.182844847431069e-87,
   "Deb3": -0.036599504738713866,
   "Qing": 184.0,
+  "Schwefel": 43703.20448793846,
+  "ChungReynolds": 900.0,
   "Schwefel226": -2.353818129766789,
   "Weierstrass": 23.999988555908203,
   "WWavy": 1.1130512151573806,
@@ -51,8 +54,10 @@ zero_lookup = {
   "Alpine2": 0.0,
   "Csendes": 0.0,
   "Deb1": 0.0,
-  "Deb3": 0.0,
+  "Deb3": -0.1249999850988388,
   "Qing": 30.0,
+  "Schwefel": 0.0,
+  "ChungReynolds": 0.0,
   "Schwefel226": 0.0,
   "Weierstrass": 23.999988555908203,
   "WWavy": 0.0,
@@ -132,7 +137,7 @@ class TestNumpyFunctions(unittest.TestCase):
 
 class TestTensorflowFunctions(unittest.TestCase):
   batch_size = 10  # batch size of array in multiple input testing
-  dtype = tf.float64
+  dtype = tf.float32
 
   @classmethod
   def setUpClass(cls) -> None:
@@ -151,38 +156,36 @@ class TestTensorflowFunctions(unittest.TestCase):
     return tf.repeat(tf.expand_dims(array_result, 0), self.batch_size, 0)
 
   # Test a given function
-  def default_test(self, f: tff.TensorflowFunction, relax_batch=False):
+  def default_test(self, f: tff.TensorflowFunction,
+                   relax_batch=False,
+                   tolerance: float = 10):
     array_result = tf.constant(array_lookup[f.name], self.dtype)
     batch_result = self.batch_result(array_result)
     zero_result = tf.constant(zero_lookup[f.name], self.dtype)
+    tol = tolerance * numpy.finfo(self.dtype.as_numpy_dtype).eps
 
     # Test default value [1,2,3,4]
     result = f(self.array)
-    tf.debugging.assert_near(result, array_result)
+    tf.debugging.assert_near(result, array_result, tol, tol)
 
     if not relax_batch:
       # Test batch of default value [[1,2,3,4],[1,2,3,4], ...]
       result = f(self.batch)
-      self.assertTrue(tf.reduce_all(result == batch_result))
+      tf.debugging.assert_near(result, batch_result)
       self.assertEqual(result.shape, batch_result.shape)
 
-      result = f(self.zeros)
-      tf.debugging.assert_near(result, zero_result)
-
-    # Testing Tracing
-    f = tf.function(f)
-
-    # Test default value [1,2,3,4] after Tracing
-    result = f(self.array)
-    tf.debugging.assert_near(result, array_result)
+    result = f(self.zeros)
+    tf.debugging.assert_near(result, zero_result, tol, tol)
 
     # Testing shape and dtype
     self.assertEqual(result.shape, array_result.shape)
     self.assertEqual(result.dtype, array_result.dtype)
 
-  def tf_function_test(self, f: tff.TensorflowFunction, relax_batch=False):
+  def tf_function_test(self, f: tff.TensorflowFunction,
+                       relax_batch=False,
+                       tolerance: float = 10):
     f.enable_tf_function()
-    self.default_test(f, relax_batch)
+    self.default_test(f, relax_batch, tolerance=tolerance)
     f.disable_tf_function()
 
   def test_ackley(self):
@@ -249,13 +252,21 @@ class TestTensorflowFunctions(unittest.TestCase):
     self.default_test(tff.Qing(), True)
     self.tf_function_test(tff.Qing(), True)
 
+  def test_schwefel(self):
+    self.default_test(tff.Schwefel(), True)
+    self.tf_function_test(tff.Schwefel(), True)
+
+  def test_chung_reynolds(self):
+    self.default_test(tff.ChungReynolds(), True)
+    self.tf_function_test(tff.ChungReynolds(), True)
+
   def test_schwefel_2_26(self):
     self.default_test(tff.Schwefel226(), True)
     self.tf_function_test(tff.Schwefel226(), True)
 
   def test_weierstrass(self):
-    self.default_test(tff.Weierstrass(), True)
-    self.tf_function_test(tff.Weierstrass(), True)
+    self.default_test(tff.Weierstrass(), True, 1e3)
+    self.tf_function_test(tff.Weierstrass(), True, 1e3)
 
   def test_w_wavy(self):
     self.default_test(tff.WWavy(), True)
