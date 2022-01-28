@@ -23,6 +23,14 @@ array_lookup = {
   "Sphere": 30.0,
   "BentCigar": 29000001.0,
   "PowellSum": 1114.0,
+  "Alpine2": -0.40033344730936005,
+  "Csendes": 11063.416256526398,
+  "Deb1": -6.182844847431069e-87,
+  "Deb3": -0.036599504738713866,
+  "Qing": 184.0,
+  "Schwefel226": -2.353818129766789,
+  "Weierstrass": 23.999988555908203,
+  "WWavy": 1.1130512151573806,
   "SchumerSteiglitz": 354.0,
   "RotatedHyperEllipsoid": 50.0,
   "DixonPrice": 4230.0,
@@ -40,6 +48,14 @@ zero_lookup = {
   "Sphere": 0.0,
   "BentCigar": 0.0,
   "PowellSum": 0.0,
+  "Alpine2": 0.0,
+  "Csendes": 0.0,
+  "Deb1": 0.0,
+  "Deb3": 0.0,
+  "Qing": 30.0,
+  "Schwefel226": 0.0,
+  "Weierstrass": 23.999988555908203,
+  "WWavy": 0.0,
   "SchumerSteiglitz": 0.0,
   "RotatedHyperEllipsoid": 0.0,
   "DixonPrice": 1.0,
@@ -212,6 +228,38 @@ class TestTensorflowFunctions(unittest.TestCase):
   def test_powell_sum(self):
     self.default_test(tff.PowellSum(), True)
     self.tf_function_test(tff.PowellSum(), True)
+
+  def test_alpine_2(self):
+    self.default_test(tff.Alpine2(), True)
+    self.tf_function_test(tff.Alpine2(), True)
+
+  def test_csendes(self):
+    self.default_test(tff.Csendes(), True)
+    self.tf_function_test(tff.Csendes(), True)
+
+  def test_deb_1(self):
+    self.default_test(tff.Deb1(), True)
+    self.tf_function_test(tff.Deb1(), True)
+
+  def test_deb_3(self):
+    self.default_test(tff.Deb3(), True)
+    self.tf_function_test(tff.Deb3(), True)
+
+  def test_qing(self):
+    self.default_test(tff.Qing(), True)
+    self.tf_function_test(tff.Qing(), True)
+
+  def test_schwefel_2_26(self):
+    self.default_test(tff.Schwefel226(), True)
+    self.tf_function_test(tff.Schwefel226(), True)
+
+  def test_weierstrass(self):
+    self.default_test(tff.Weierstrass(), True)
+    self.tf_function_test(tff.Weierstrass(), True)
+
+  def test_w_wavy(self):
+    self.default_test(tff.WWavy(), True)
+    self.tf_function_test(tff.WWavy(), True)
 
   def test_rotated_hyper_ellipsoid(self):
     self.default_test(tff.RotatedHyperEllipsoid())
