@@ -109,9 +109,9 @@ class Bohachevsky(TensorflowFunction):
     d = x.shape[-1]
     tf.assert_equal(d, 2)
 
-    return tf.pow(x[0], 2) + tf.math.multiply(2, tf.pow(x[1], 2)) - \
-           tf.math.multiply(0.3, tf.cos(3 * pi * x[0])) - \
-           tf.math.multiply(0.4, tf.cos(4 * pi * x[1])) + 0.7
+    return tf.pow(x[0], 2) + tf.math.multiply(tf.pow(x[1], 2), 2) - \
+           tf.math.multiply(tf.cos(3 * pi * x[0]), 0.3) - \
+           tf.math.multiply(tf.cos(4 * pi * x[1]), 0.4) + 0.7
 
 
 class Csendes(TensorflowFunction):
@@ -140,7 +140,7 @@ class Deb1(TensorflowFunction):
 class Deb3(TensorflowFunction):
   """Deb function 3 defined in [1]."""
 
-  def __init__(self, domain: core.Domain = core.Domain(min=-1.0, max=1.0)):
+  def __init__(self, domain: core.Domain = core.Domain(min=0.0, max=1.0)):
     super(Deb3, self).__init__(domain)
 
   def _call(self, x: tf.Tensor):
@@ -325,7 +325,7 @@ class Sphere(TensorflowFunction):
 class Weierstrass(TensorflowFunction):
   """Weierstrass function defined in [1]."""
 
-  def __init__(self, domain: core.Domain = core.Domain(min=-5.0, max=10.0),
+  def __init__(self, domain: core.Domain = core.Domain(min=-0.5, max=0.5),
                a: float = 0.5,
                b: float = 3,
                kmax: int = 20):
@@ -357,7 +357,7 @@ class Weierstrass(TensorflowFunction):
 class WWavy(TensorflowFunction):
   """W / Wavy function defined in [1]."""
 
-  def __init__(self, domain: core.Domain = core.Domain(min=-5.0, max=10.0),
+  def __init__(self, domain: core.Domain = core.Domain(min=-pi, max=pi),
                k: float = 10):
     super(WWavy, self).__init__(domain)
     self._k = k
