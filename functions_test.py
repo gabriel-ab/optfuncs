@@ -31,9 +31,12 @@ array_lookup = {
   "Qing": 184.0,
   "Schwefel": 43703.20448793846,
   "ChungReynolds": 900.0,
+  "Schwefel222": 34.0,
+  "Schwefel223": 1108650.0,
   "Schwefel226": -2.353818129766789,
   "Weierstrass": 23.999988555908203,
   "WWavy": 1.1130512151573806,
+  "Brown": 1.6678281e+16,
   "SchumerSteiglitz": 354.0,
   "RotatedHyperEllipsoid": 50.0,
   "DixonPrice": 4230.0,
@@ -58,9 +61,12 @@ zero_lookup = {
   "Qing": 30.0,
   "Schwefel": 0.0,
   "ChungReynolds": 0.0,
+  "Schwefel222": 0.0,
+  "Schwefel223": 0.0,
   "Schwefel226": 0.0,
   "Weierstrass": 23.999988555908203,
   "WWavy": 0.0,
+  "Brown": 0.0,
   "SchumerSteiglitz": 0.0,
   "RotatedHyperEllipsoid": 0.0,
   "DixonPrice": 1.0,
@@ -263,6 +269,18 @@ class TestTensorflowFunctions(unittest.TestCase):
   def test_schwefel_2_26(self):
     self.default_test(tff.Schwefel226(), True)
     self.tf_function_test(tff.Schwefel226(), True)
+
+  def test_schwefel_2_22(self):
+    self.default_test(tff.Schwefel222(), True)
+    self.tf_function_test(tff.Schwefel222(), True)
+
+  def test_schwefel_2_23(self):
+    self.default_test(tff.Schwefel223(), True)
+    self.tf_function_test(tff.Schwefel223(), True)
+
+  def test_brown(self):
+    self.default_test(tff.Brown(), True)
+    self.tf_function_test(tff.Brown(), True)
 
   def test_weierstrass(self):
     self.default_test(tff.Weierstrass(), True, 1e3)

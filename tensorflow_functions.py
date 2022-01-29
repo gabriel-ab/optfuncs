@@ -114,6 +114,24 @@ class Bohachevsky(TensorflowFunction):
            tf.math.multiply(tf.cos(4 * pi * x[1]), 0.4) + 0.7
 
 
+class Brown(TensorflowFunction):
+  """Brown function defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-1.0, max=4.0)):
+    super(Brown, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    d = x.shape[-1]
+    xi = x[:d - 1]  # len = d-1
+    xi1 = x[1:d]  # len = d-1
+
+    xi_sq = tf.pow(xi, 2)
+    xi1_sq = tf.pow(xi1, 2)
+
+    return tf.reduce_sum(tf.pow(xi_sq, xi1_sq + 1) + tf.pow(xi1_sq, xi_sq + 1),
+                         axis=-1)
+
+
 class ChungReynolds(TensorflowFunction):
   """Chung Reynolds function defined in [1]."""
 
@@ -315,8 +333,29 @@ class Schwefel(TensorflowFunction):
     return tf.pow(tf.reduce_sum(tf.pow(x, 2), axis=-1), a)
 
 
+class Schwefel222(TensorflowFunction):
+  """Schwefel function 2.22 defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-100.0, max=100.0)):
+    super(Schwefel222, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    x_abs = tf.abs(x)
+    return tf.reduce_sum(x_abs, axis=-1) + tf.reduce_prod(x_abs, axis=-1)
+
+
+class Schwefel223(TensorflowFunction):
+  """Schwefel function 2.23 defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-10.0, max=10.0)):
+    super(Schwefel223, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    return tf.reduce_sum(tf.pow(x, 10), axis=-1)
+
+
 class Schwefel226(TensorflowFunction):
-  """Schwefel 2.26 function defined in [1]."""
+  """Schwefel function 2.26 defined in [1]."""
 
   def __init__(self, domain: core.Domain = core.Domain(min=-500.0, max=500.0)):
     super(Schwefel226, self).__init__(domain)
