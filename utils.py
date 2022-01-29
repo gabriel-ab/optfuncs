@@ -2,6 +2,7 @@
 
 import time
 import inspect
+import typing
 
 import numpy as np
 import tensorflow as tf
@@ -13,6 +14,8 @@ import matplotlib.cm as cm
 from optfuncs import core
 from optfuncs import numpy_functions as npf
 from optfuncs import tensorflow_functions as tff
+
+""" Plotting utils. """
 
 
 class FunctionDrawer:
@@ -109,3 +112,72 @@ def plot_all_functions_in(module, interactive=False, save=True):
 
   end_time = time.time()
   print(f"Execution time: {end_time - start_time}s")
+
+
+""" Test utils. """
+
+
+class FunctionEvaluation:
+  default_x_4d: typing.List[float] = [1., 2., 3., 4.]
+  default_fx_4d: typing.Dict[str, float] = {
+    "Ackley": 8.43469444443746497,
+    "Alpine2": -0.40033344730936005,
+    "BentCigar": 29000001.0,
+    "Brown": 1.6678281e+16,
+    "ChungReynolds": 900.0,
+    "Csendes": 11063.416256526398,
+    "Deb1": -6.182844847431069e-87,
+    "Deb3": -0.036599504738713866,
+    "DixonPrice": 4230.0,
+    "Griewank": 1.00187037800320189,
+    "Levy": 2.76397190019909811,
+    "PowellSum": 1114.0,
+    "Qing": 184.0,
+    "Rastrigin": 30.0,
+    "Rosenbrock": 2705.0,
+    "RotatedHyperEllipsoid": 50.0,
+    "Salomon": 2.5375017928784365,
+    "SchumerSteiglitz": 354.0,
+    "Schwefel222": 34.0,
+    "Schwefel223": 1108650.0,
+    "Schwefel226": -2.353818129766789,
+    "Schwefel": 43703.20448793846,
+    "Sphere": 30.0,
+    "SumSquares": 100.0,
+    "Trigonometric2": 42.98949432373047,
+    "WWavy": 1.1130512151573806,
+    "Weierstrass": 23.999988555908203,
+    "Zakharov": 50880.0,
+  }
+
+  zeros_x_4d: typing.List[float] = [0., 0., 0., 0.]
+  zeros_fx_4d: typing.Dict[str, float] = {
+    "Ackley": 4.44089209850062616e-16,
+    "Alpine2": 0.0,
+    "BentCigar": 0.0,
+    "Brown": 0.0,
+    "ChungReynolds": 0.0,
+    "Csendes": 0.0,
+    "Deb1": 0.0,
+    "Deb3": -0.1249999850988388,
+    "DixonPrice": 1.0,
+    "Griewank": 0.0,
+    "Levy": 0.897533662350923467,
+    "PowellSum": 0.0,
+    "Qing": 30.0,
+    "Rastrigin": 0.0,
+    "Rosenbrock": 3.0,
+    "RotatedHyperEllipsoid": 0.0,
+    "Salomon": 0.0,
+    "SchumerSteiglitz": 0.0,
+    "Schwefel222": 0.0,
+    "Schwefel223": 0.0,
+    "Schwefel226": 0.0,
+    "Schwefel": 0.0,
+    "Sphere": 0.0,
+    "SumSquares": 0.0,
+    "Trigonometric2": 36.10124588012695,
+    "WWavy": 0.0,
+    "Weierstrass": 23.999988555908203,
+    "Zakharov": 0.0,
+  }

@@ -150,7 +150,8 @@ class Csendes(TensorflowFunction):
 
   def _call(self, x: tf.Tensor):
     return tf.cond(tf.equal(tf.reduce_prod(x), 0),
-                   lambda: tf.constant(0, dtype=x.dtype),
+                   lambda: tf.reduce_sum(x * tf.constant(0, dtype=x.dtype),
+                                         axis=-1),
                    lambda: tf.reduce_sum(tf.multiply(tf.pow(x, 6), 2 +
                                                      tf.sin(tf.divide(1, x))),
                                          axis=-1))
