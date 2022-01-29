@@ -202,6 +202,16 @@ class DixonPrice(TensorflowFunction):
     return tf.squeeze(result)
 
 
+class Exponential(TensorflowFunction):
+  """Exponential function defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-1.0, max=1.0)):
+    super(Exponential, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    return -tf.exp(tf.multiply(tf.reduce_sum(tf.pow(x, 2), axis=-1), -0.5))
+
+
 class Griewank(TensorflowFunction):
   """Griewank function defined in [1]."""
 
@@ -309,6 +319,19 @@ class RotatedHyperEllipsoid(TensorflowFunction):
     return tf.squeeze(result)
 
 
+class Salomon(TensorflowFunction):
+  """Salomon function defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-100.0, max=100.0)):
+    super(Salomon, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    x_sqrt = tf.sqrt(tf.reduce_sum(tf.pow(x, 2), axis=-1))
+    return 1 - \
+           tf.cos(tf.multiply(x_sqrt, 2 * pi)) + \
+           tf.multiply(x_sqrt, 0.1)
+
+
 class SumSquares(TensorflowFunction):
   """Sum Squares function defined in [1]."""
 
@@ -385,6 +408,24 @@ class Sphere(TensorflowFunction):
 
   def _call(self, x: tf.Tensor):
     return tf.reduce_sum(tf.math.pow(x, 2), axis=-1)
+
+
+class Trigonometric2(TensorflowFunction):
+  """Trigonometric function 2 defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-500.0, max=500.0)):
+    super(Trigonometric2, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    xi_squared = tf.pow(tf.subtract(x, 0.9), 2)
+
+    const = tf.multiply(tf.pow(
+      tf.sin(tf.multiply(tf.pow(tf.subtract(x[1], 0.9), 2), 14)), 2), 6)
+
+    res_x = tf.multiply(tf.pow(tf.sin(tf.multiply(xi_squared, 7)), 2), 8) + \
+            tf.multiply(tf.pow(tf.sin(tf.multiply(xi_squared, 14)), 2), 6) + \
+            xi_squared
+    return 1 + tf.reduce_sum(res_x, axis=-1)
 
 
 class Weierstrass(TensorflowFunction):

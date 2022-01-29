@@ -35,6 +35,8 @@ array_lookup = {
   "Schwefel223": 1108650.0,
   "Schwefel226": -2.353818129766789,
   "Weierstrass": 23.999988555908203,
+  "Salomon": 2.5375017928784365,
+  "Trigonometric2": 42.98949432373047,
   "WWavy": 1.1130512151573806,
   "Brown": 1.6678281e+16,
   "SchumerSteiglitz": 354.0,
@@ -65,6 +67,8 @@ zero_lookup = {
   "Schwefel223": 0.0,
   "Schwefel226": 0.0,
   "Weierstrass": 23.999988555908203,
+  "Salomon": 0.0,
+  "Trigonometric2": 36.10124588012695,
   "WWavy": 0.0,
   "Brown": 0.0,
   "SchumerSteiglitz": 0.0,
@@ -281,6 +285,14 @@ class TestTensorflowFunctions(unittest.TestCase):
   def test_brown(self):
     self.default_test(tff.Brown(), True)
     self.tf_function_test(tff.Brown(), True)
+
+  def test_salomon(self):
+    self.default_test(tff.Salomon(), True)
+    self.tf_function_test(tff.Salomon(), True)
+
+  def test_trigonometric_2(self):
+    self.default_test(tff.Trigonometric2(), True)
+    self.tf_function_test(tff.Trigonometric2(), True)
 
   def test_weierstrass(self):
     self.default_test(tff.Weierstrass(), True, 1e3)
