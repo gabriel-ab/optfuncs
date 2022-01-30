@@ -117,8 +117,13 @@ def plot_all_functions_in(module, interactive=False, save=True):
 """ Test utils. """
 
 
-class FunctionEvaluation:
-  default_x_4d: typing.List[float] = [1., 2., 3., 4.]
+class FunctionEvaluationExamples:
+  default_str = "default"
+
+  default_x_4d: typing.Dict[str, typing.List[float]] = {
+    "Mishra2": [0., 0.25, 0.5, 0.75],
+    default_str: [1., 2., 3., 4.],
+  }
   default_fx_4d: typing.Dict[str, float] = {
     "Ackley": 8.43469444443746497,
     "Alpine2": -0.40033344730936005,
@@ -131,6 +136,7 @@ class FunctionEvaluation:
     "DixonPrice": 4230.0,
     "Griewank": 1.00187037800320189,
     "Levy": 2.76397190019909811,
+    "Mishra2": 49.12257870688604,
     "PowellSum": 1114.0,
     "Qing": 184.0,
     "Rastrigin": 30.0,
@@ -150,6 +156,13 @@ class FunctionEvaluation:
     "Zakharov": 50880.0,
   }
 
+  defaults_x: typing.Dict[int, typing.Dict[str, typing.List[float]]] = {
+    4: default_x_4d,
+  }
+  defaults_fx: typing.Dict[int, typing.Dict[str, float]] = {
+    4: default_fx_4d,
+  }
+
   zeros_x_4d: typing.List[float] = [0., 0., 0., 0.]
   zeros_fx_4d: typing.Dict[str, float] = {
     "Ackley": 4.44089209850062616e-16,
@@ -163,6 +176,7 @@ class FunctionEvaluation:
     "DixonPrice": 1.0,
     "Griewank": 0.0,
     "Levy": 0.897533662350923467,
+    "Mishra2": 625.0,
     "PowellSum": 0.0,
     "Qing": 30.0,
     "Rastrigin": 0.0,
@@ -181,3 +195,36 @@ class FunctionEvaluation:
     "Weierstrass": 23.999988555908203,
     "Zakharov": 0.0,
   }
+
+  zeros_x: typing.Dict[int, typing.List[float]] = {
+    4: zeros_x_4d,
+  }
+  zeros_fx: typing.Dict[int, typing.Dict[str, float]] = {
+    4: zeros_fx_4d,
+  }
+
+  @classmethod
+  def get_default_eval(cls,
+                       function: core.Function,
+                       dims: int) -> typing.Tuple[typing.List, float]:
+    assert dims in cls.defaults_x and dims in cls.defaults_fx
+    fn_str = function.name
+    x_dict = cls.defaults_x[dims]
+    fx_dict = cls.defaults_fx[dims]
+
+    query_arr = x_dict[fn_str] if fn_str in x_dict else x_dict[cls.default_str]
+    result = fx_dict[fn_str]
+
+    return query_arr, result
+
+  @classmethod
+  def get_eval_at_zeros(cls,
+                        function: core.Function,
+                        dims: int) -> typing.Tuple[typing.List, float]:
+    assert dims in cls.zeros_x and dims in cls.zeros_fx
+    fx_dict = cls.zeros_fx[dims]
+
+    query_arr = cls.zeros_x[dims]
+    result = fx_dict[function.name]
+
+    return query_arr, result

@@ -251,6 +251,20 @@ class Levy(TensorflowFunction):
     return tf.squeeze(term1 + levy_sum + term3)
 
 
+class Mishra2(TensorflowFunction):
+  """Mishra function 2 defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=0.0, max=1.0)):
+    super(Mishra2, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    d = x.shape[-1]
+    xi = x[:d-1]
+    xi1 = x[1:]
+    xn = d - tf.reduce_sum(tf.multiply(xi + xi1, 0.5), axis=-1)
+    return tf.pow(1 + xn, xn)
+
+
 class PowellSum(TensorflowFunction):
   """Powell Sum function defined in [1]."""
 

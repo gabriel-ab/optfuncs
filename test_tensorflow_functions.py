@@ -6,24 +6,13 @@ import numpy
 import tensorflow as tf
 
 from optfuncs import tensorflow_functions as tff
-from optfuncs.utils import FunctionEvaluation
+from optfuncs.utils import FunctionEvaluationExamples
 
 
 class TestTensorflowFunctions(unittest.TestCase):
   batch_size = 10  # batch size of array in multiple input testing
   dtype = tf.float32
-
-  @classmethod
-  def setUpClass(cls) -> None:
-    cls.array = tf.constant(FunctionEvaluation.default_x_4d, dtype=cls.dtype)
-    cls.batch = tf.repeat(cls.array[None], cls.batch_size, 0)
-    cls.zeros = tf.constant(FunctionEvaluation.zeros_x_4d, dtype=cls.dtype)
-
-  @classmethod
-  def tearDownClass(cls) -> None:
-    del cls.array
-    del cls.zeros
-    del cls.batch
+  dims = 4
 
   # Get batch expected result from array expected result
   def batch_result(self, array_result: tf.Tensor) -> tf.Tensor:
@@ -46,24 +35,32 @@ class TestTensorflowFunctions(unittest.TestCase):
   def default_test(self, f: tff.TensorflowFunction,
                    relax_batch=False,
                    tolerance: float = 10):
-    array_result = tf.constant(FunctionEvaluation.default_fx_4d[f.name],
-                               self.dtype)
-    batch_result = self.batch_result(array_result)
-    zero_result = tf.constant(FunctionEvaluation.zeros_fx_4d[f.name],
-                              self.dtype)
     tol = tolerance * numpy.finfo(self.dtype.as_numpy_dtype).eps
 
+    array, array_result = FunctionEvaluationExamples.get_default_eval(
+      f, self.dims)
+    array = tf.constant(array, dtype=self.dtype)
+    array_result = tf.constant(array_result, self.dtype)
+
     # Test default value [1,2,3,4]
-    result = f(self.array)
+    result = f(array)
     tf.debugging.assert_near(result, array_result, tol, tol)
 
     if not relax_batch:
+      batch = tf.repeat(array[None], self.batch_size, 0)
+      batch_result = self.batch_result(array_result)
+
       # Test batch of default value [[1,2,3,4],[1,2,3,4], ...]
-      result = f(self.batch)
+      result = f(batch)
       tf.debugging.assert_near(result, batch_result)
       self.assertEqual(result.shape, batch_result.shape)
 
-    result = f(self.zeros)
+    zero, zero_result = FunctionEvaluationExamples.get_eval_at_zeros(
+      f, self.dims)
+    zero = tf.constant(zero, dtype=self.dtype)
+    zero_result = tf.constant(zero_result, dtype=self.dtype)
+
+    result = f(zero)
     tf.debugging.assert_near(result, zero_result, tol, tol)
 
     # Testing shape and dtype
@@ -147,6 +144,9 @@ class TestTensorflowFunctions(unittest.TestCase):
 
   def test_trigonometric_2(self):
     self.full_test(tff.Trigonometric2(), True)
+
+  def test_mishra_2(self):
+    self.full_test(tff.Mishra2(), True)
 
   def test_weierstrass(self):
     self.full_test(tff.Weierstrass(), True, 1e3)
