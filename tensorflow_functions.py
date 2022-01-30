@@ -1,4 +1,12 @@
-"""TensorFlow's implementation of many functions."""
+"""TensorFlow's implementation of many functions.
+References:
+  [1] Momin Jamil and Xin-She Yang.
+      A Literature Survey of Benchmark Functions For Global
+        Optimization Problems, 2013. (10.1504/IJMMNO.2013.055204)
+  [2] IEEE CEC 2021 C-2 (https://cec2021.mini.pw.edu.pl/en/program/competitions)
+  [3] IEEE CEC 2021 C-3 (https://cec2021.mini.pw.edu.pl/en/program/competitions)
+  [4] https://www.sfu.ca/~ssurjano/optimization.html
+"""
 
 import abc
 import typing
@@ -46,11 +54,10 @@ class TensorflowFunction(core.Function):
 
 
 class Ackley(TensorflowFunction):
-  """Ackley function as defined in:
-  https://www.sfu.ca/~ssurjano/ackley.html."""
+  """Ackley function 1 defined in [1]."""
 
   def __init__(self,
-               domain: core.Domain = core.Domain(min=-32.768, max=32.768),
+               domain: core.Domain = core.Domain(min=-35.0, max=35.0),
                a=20,
                b=0.2, c=2 * pi):
     super(Ackley, self).__init__(domain)
@@ -69,11 +76,147 @@ class Ackley(TensorflowFunction):
     return result
 
 
-class Griewank(TensorflowFunction):
-  """Griewank function as defined in:
-  https://www.sfu.ca/~ssurjano/griewank.html."""
+class Alpine2(TensorflowFunction):
+  """Alpine function 2 defined in [1]."""
 
-  def __init__(self, domain: core.Domain = core.Domain(min=-600.0, max=600.0)):
+  def __init__(self, domain: core.Domain = core.Domain(min=0.0, max=10.0)):
+    super(Alpine2, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    return tf.reduce_prod(tf.multiply(tf.sqrt(x), tf.sin(x)), axis=-1)
+
+
+class BentCigar(TensorflowFunction):
+  """BentCigar function defined in [2].
+  Implementation doesn't support batch yet.
+  """
+
+  def __init__(self, domain: core.Domain = core.Domain(min=0.0, max=10.0)):
+    super(BentCigar, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    return tf.pow(x[0], 2) + tf.multiply(tf.reduce_sum(tf.pow(x[1:], 2),
+                                                       axis=-1), 1e6)
+
+
+class Bohachevsky(TensorflowFunction):
+  """Bohachevsky function 1 defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-100.0, max=100.0)):
+    super(Bohachevsky, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    d = x.shape[-1]
+    tf.assert_equal(d, 2)
+
+    return tf.pow(x[0], 2) + tf.math.multiply(tf.pow(x[1], 2), 2) - \
+           tf.math.multiply(tf.cos(3 * pi * x[0]), 0.3) - \
+           tf.math.multiply(tf.cos(4 * pi * x[1]), 0.4) + 0.7
+
+
+class Brown(TensorflowFunction):
+  """Brown function defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-1.0, max=4.0)):
+    super(Brown, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    d = x.shape[-1]
+    xi = x[:d - 1]  # len = d-1
+    xi1 = x[1:d]  # len = d-1
+
+    xi_sq = tf.pow(xi, 2)
+    xi1_sq = tf.pow(xi1, 2)
+
+    return tf.reduce_sum(tf.pow(xi_sq, xi1_sq + 1) + tf.pow(xi1_sq, xi_sq + 1),
+                         axis=-1)
+
+
+class ChungReynolds(TensorflowFunction):
+  """Chung Reynolds function defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-100.0, max=100.0)):
+    super(ChungReynolds, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    return tf.pow(tf.reduce_sum(tf.pow(x, 2), axis=-1), 2)
+
+
+class Csendes(TensorflowFunction):
+  """Csendes function defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-1.0, max=1.0)):
+    super(Csendes, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    return tf.cond(tf.equal(tf.reduce_prod(x), 0),
+                   lambda: tf.reduce_sum(x * tf.constant(0, dtype=x.dtype),
+                                         axis=-1),
+                   lambda: tf.reduce_sum(tf.multiply(tf.pow(x, 6), 2 +
+                                                     tf.sin(tf.divide(1, x))),
+                                         axis=-1))
+
+
+class Deb1(TensorflowFunction):
+  """Deb function 1 defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-1.0, max=1.0)):
+    super(Deb1, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    d = x.shape[-1]
+    return -tf.divide(tf.reduce_sum(tf.pow(tf.sin(tf.multiply(x, 5 * pi)), 6),
+                                    axis=-1), d)
+
+
+class Deb3(TensorflowFunction):
+  """Deb function 3 defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=0.0, max=1.0)):
+    super(Deb3, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    d = x.shape[-1]
+    return -tf.divide(
+      tf.reduce_sum(
+        tf.pow(
+          tf.sin(
+            tf.multiply(tf.pow(x, 3 / 4) - 0.05, 5 * pi)), 6),
+        axis=-1), d)
+
+
+class DixonPrice(TensorflowFunction):
+  """Dixon-Price function defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-10.0, max=10.0)):
+    super(DixonPrice, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    x = atleast_2d(x)
+    d = tf.shape(x)[-1]
+    x0 = x[:, 0]
+    ii = tf.range(2.0, d + 1, dtype=x.dtype)
+    xi = x[:, 1:]
+    xold = x[:, :-1]
+    dixon_sum = ii * tf.pow(2 * tf.pow(xi, 2) - xold, 2)
+    result = tf.pow(x0 - 1, 2) + tf.reduce_sum(dixon_sum, -1)
+    return tf.squeeze(result)
+
+
+class Exponential(TensorflowFunction):
+  """Exponential function defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-1.0, max=1.0)):
+    super(Exponential, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    return -tf.exp(tf.multiply(tf.reduce_sum(tf.pow(x, 2), axis=-1), -0.5))
+
+
+class Griewank(TensorflowFunction):
+  """Griewank function defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-100.0, max=100.0)):
     super(Griewank, self).__init__(domain)
 
   def _call(self, x: tf.Tensor):
@@ -87,20 +230,8 @@ class Griewank(TensorflowFunction):
     return tf.squeeze(griewank_sum - prod + 1)
 
 
-class Rastrigin(TensorflowFunction):
-  def __init__(self, domain: core.Domain = core.Domain(min=-5.12, max=5.12)):
-    super(Rastrigin, self).__init__(domain)
-
-  def _call(self, x: tf.Tensor):
-    d = x.shape[-1]
-    return (10 * d) + tf.reduce_sum(tf.math.pow(x, 2) -
-                                    (10 * tf.cos(
-                                      tf.math.multiply(x, 2*pi))), axis=-1)
-
-
 class Levy(TensorflowFunction):
-  """Levy function as defined in:
-  https://www.sfu.ca/~ssurjano/levy.html."""
+  """Levy function defined in [4]."""
 
   def __init__(self, domain: core.Domain = core.Domain(min=-10.0, max=10.0)):
     super(Levy, self).__init__(domain)
@@ -120,11 +251,61 @@ class Levy(TensorflowFunction):
     return tf.squeeze(term1 + levy_sum + term3)
 
 
-class Rosenbrock(TensorflowFunction):
-  """Rosenbrock function as defined in:
-  https://www.sfu.ca/~ssurjano/rosen.html."""
+class Mishra2(TensorflowFunction):
+  """Mishra function 2 defined in [1]."""
 
-  def __init__(self, domain: core.Domain = core.Domain(min=-5.0, max=10.0)):
+  def __init__(self, domain: core.Domain = core.Domain(min=0.0, max=1.0)):
+    super(Mishra2, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    d = x.shape[-1]
+    xi = x[:d - 1]
+    xi1 = x[1:]
+    xn = d - tf.reduce_sum(tf.multiply(xi + xi1, 0.5), axis=-1)
+    return tf.pow(1 + xn, xn)
+
+
+class PowellSum(TensorflowFunction):
+  """Powell Sum function defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-1.0, max=1.0)):
+    super(PowellSum, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    d = x.shape[-1]
+    indices = tf.range(start=1, limit=d + 1, dtype=x.dtype)
+    return tf.reduce_sum(tf.pow(tf.math.abs(x), indices + 1))
+
+
+class Qing(TensorflowFunction):
+  """Qing function defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-500.0, max=500.0)):
+    super(Qing, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    d = x.shape[-1]
+    indices = tf.range(start=1, limit=d + 1, dtype=x.dtype)
+    return tf.reduce_sum(tf.pow(tf.pow(x, 2) - indices, 2), axis=-1)
+
+
+class Rastrigin(TensorflowFunction):
+  """Rastrigin function defined in [2]. Search range may vary."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-5.12, max=5.12)):
+    super(Rastrigin, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    d = x.shape[-1]
+    return (10 * d) + tf.reduce_sum(tf.math.pow(x, 2) -
+                                    (10 * tf.cos(tf.math.multiply(x, 2 * pi))),
+                                    axis=-1)
+
+
+class Rosenbrock(TensorflowFunction):
+  """Rosenbrock function defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-30.0, max=30.0)):
     super(Rosenbrock, self).__init__(domain)
 
   def _call(self, x: tf.Tensor):
@@ -136,63 +317,8 @@ class Rosenbrock(TensorflowFunction):
     return tf.squeeze(result)
 
 
-class Zakharov(TensorflowFunction):
-  """Zakharov function as defined in:
-  https://www.sfu.ca/~ssurjano/zakharov.html."""
-
-  def __init__(self, domain: core.Domain = core.Domain(min=-5.0, max=10.0)):
-    super(Zakharov, self).__init__(domain)
-
-  def _call(self, x: tf.Tensor):
-    d = x.shape[-1]
-    sum1 = tf.reduce_sum(tf.math.pow(x, 2), axis=-1)
-    sum2 = tf.reduce_sum(tf.math.divide(
-      tf.math.multiply(x, tf.range(1, (d + 1), dtype=x.dtype)), 2), axis=-1)
-    return sum1 + tf.math.pow(sum2, 2) + tf.math.pow(sum2, 4)
-
-
-class Bohachevsky(TensorflowFunction):
-  """Bohachevsky function (f1, 2 dims only) as defined in:
-  https://www.sfu.ca/~ssurjano/boha.html."""
-
-  def __init__(self, domain: core.Domain = core.Domain(min=-100.0, max=100.0)):
-    super(Bohachevsky, self).__init__(domain)
-
-  def _call(self, x: tf.Tensor):
-    d = x.shape[-1]
-    tf.assert_equal(d, 2)
-
-    return tf.pow(x[0], 2) + tf.math.multiply(2, tf.pow(x[1], 2)) - \
-           tf.math.multiply(0.3, tf.cos(3 * pi * x[0])) - \
-           tf.math.multiply(0.4, tf.cos(4 * pi * x[1])) + 0.7
-
-
-class SumSquares(TensorflowFunction):
-  """SumSquares function as defined in:
-  https://www.sfu.ca/~ssurjano/sumsqu.html."""
-
-  def __init__(self, domain: core.Domain = core.Domain(min=-10.0, max=10.0)):
-    super(SumSquares, self).__init__(domain)
-
-  def _call(self, x: tf.Tensor):
-    mul = tf.range(1, x.shape[-1] + 1, dtype=x.dtype)
-    return tf.reduce_sum(tf.math.pow(x, 2) * mul, axis=-1)
-
-
-class Sphere(TensorflowFunction):
-  """Sphere function as defined in:
-  https://www.sfu.ca/~ssurjano/spheref.html."""
-
-  def __init__(self, domain: core.Domain = core.Domain(min=-5.12, max=5.12)):
-    super(Sphere, self).__init__(domain)
-
-  def _call(self, x: tf.Tensor):
-    return tf.reduce_sum(tf.math.pow(x, 2), axis=-1)
-
-
 class RotatedHyperEllipsoid(TensorflowFunction):
-  """Rotated Hyper-Ellipsoid function as defined in:
-  https://www.sfu.ca/~ssurjano/rothyp.html."""
+  """Rotated Hyper-Ellipsoid function defined in [4]."""
 
   def __init__(self,
                domain: core.Domain = core.Domain(min=-65.536, max=65.536)):
@@ -208,23 +334,247 @@ class RotatedHyperEllipsoid(TensorflowFunction):
     return tf.squeeze(result)
 
 
-class DixonPrice(TensorflowFunction):
-  """Dixon-Price function as defined in:
-  https://www.sfu.ca/~ssurjano/dixonpr.html."""
+class Salomon(TensorflowFunction):
+  """Salomon function defined in [1]."""
 
-  def __init__(self, domain: core.Domain = core.Domain(-10, 10)):
-    super(DixonPrice, self).__init__(domain)
+  def __init__(self, domain: core.Domain = core.Domain(min=-100.0, max=100.0)):
+    super(Salomon, self).__init__(domain)
 
   def _call(self, x: tf.Tensor):
-    x = atleast_2d(x)
-    d = tf.shape(x)[-1]
-    x0 = x[:, 0]
-    ii = tf.range(2.0, d + 1, dtype=x.dtype)
-    xi = x[:, 1:]
-    xold = x[:, :-1]
-    dixon_sum = ii * (2 * xi ** 2 - xold) ** 2
-    result = (x0 - 1) ** 2 + tf.reduce_sum(dixon_sum, -1)
-    return tf.squeeze(result)
+    x_sqrt = tf.sqrt(tf.reduce_sum(tf.pow(x, 2), axis=-1))
+    return 1 - \
+           tf.cos(tf.multiply(x_sqrt, 2 * pi)) + \
+           tf.multiply(x_sqrt, 0.1)
+
+
+class Sargan(TensorflowFunction):
+  """Sargan function defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-100.0, max=100.0)):
+    super(Sargan, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    d = x.shape[-1]
+    xj = x[1:]
+
+    def fn(acc, xi):
+      return acc + tf.multiply(tf.pow(xi, 2) + tf.multiply(
+        tf.reduce_sum(tf.multiply(xj, xi), axis=-1), 0.4), d)
+
+    return tf.foldl(fn, x, initializer=tf.cast(0, dtype=x.dtype))
+
+
+class SumSquares(TensorflowFunction):
+  """Sum Squares function defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-10.0, max=10.0)):
+    super(SumSquares, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    mul = tf.range(1, x.shape[-1] + 1, dtype=x.dtype)
+    return tf.reduce_sum(tf.math.multiply(tf.math.pow(x, 2), mul), axis=-1)
+
+
+class Schwefel(TensorflowFunction):
+  """Schwefel function defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-100.0, max=100.0),
+               a: float = pi):
+    super(Schwefel, self).__init__(domain)
+    self._a = a
+
+  def _call(self, x: tf.Tensor):
+    a = tf.cast(self._a, dtype=x.dtype)
+    return tf.pow(tf.reduce_sum(tf.pow(x, 2), axis=-1), a)
+
+
+class Schwefel12(TensorflowFunction):
+  """Schwefel function 1.2 defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-100.0, max=100.0)):
+    super(Schwefel12, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    d = x.shape[-1]
+    indices = tf.range(start=0, limit=d, dtype=tf.int32)
+
+    def fn(acc, i):
+      gather_indices = tf.range(start=0, limit=i + 1, dtype=tf.int32)
+      x_ = tf.gather(x, gather_indices)
+      return acc + tf.pow(tf.reduce_sum(x_, axis=-1), 2)
+
+    return tf.foldl(fn, indices, initializer=tf.cast(0, dtype=x.dtype))
+
+
+class Schwefel222(TensorflowFunction):
+  """Schwefel function 2.22 defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-100.0, max=100.0)):
+    super(Schwefel222, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    x_abs = tf.abs(x)
+    return tf.reduce_sum(x_abs, axis=-1) + tf.reduce_prod(x_abs, axis=-1)
+
+
+class Schwefel223(TensorflowFunction):
+  """Schwefel function 2.23 defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-10.0, max=10.0)):
+    super(Schwefel223, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    return tf.reduce_sum(tf.pow(x, 10), axis=-1)
+
+
+class Schwefel226(TensorflowFunction):
+  """Schwefel function 2.26 defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-500.0, max=500.0)):
+    super(Schwefel226, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    d = x.shape[-1]
+    return -tf.divide(
+      tf.reduce_sum(
+        tf.multiply(x, tf.sin(tf.sqrt(tf.abs(x)))), axis=-1), d)
+
+
+class SchumerSteiglitz(TensorflowFunction):
+  """Schumer Steiglitz function defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-10.0, max=10.0)):
+    super(SchumerSteiglitz, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    return tf.reduce_sum(tf.pow(x, 4), axis=-1)
+
+
+class Sphere(TensorflowFunction):
+  """Sphere function defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=0.0, max=10.0)):
+    super(Sphere, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    return tf.reduce_sum(tf.math.pow(x, 2), axis=-1)
+
+
+class StrechedVSineWave(TensorflowFunction):
+  """Streched V Sine Wave function defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-10.0, max=10.0)):
+    super(StrechedVSineWave, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    d = x.shape[-1]
+    xi_sqrd = tf.pow(x[:d - 1], 2)
+    xi1_sqrd = tf.pow(x[1:], 2)
+    sqrd_sum = xi_sqrd + xi1_sqrd
+
+    return tf.reduce_sum(tf.multiply(
+      tf.pow(sqrd_sum, 0.25),
+      tf.pow(tf.sin(tf.multiply(tf.pow(sqrd_sum, 0.1), 50)), 2) + 0.1), axis=-1)
+
+
+class Trigonometric2(TensorflowFunction):
+  """Trigonometric function 2 defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-500.0, max=500.0)):
+    super(Trigonometric2, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    xi_squared = tf.pow(tf.subtract(x, 0.9), 2)
+
+    res_x = tf.multiply(tf.pow(tf.sin(tf.multiply(xi_squared, 7)), 2), 8) + \
+            tf.multiply(tf.pow(tf.sin(tf.multiply(xi_squared, 14)), 2), 6) + \
+            xi_squared
+    return 1 + tf.reduce_sum(res_x, axis=-1)
+
+
+class Weierstrass(TensorflowFunction):
+  """Weierstrass function defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-0.5, max=0.5),
+               a: float = 0.5,
+               b: float = 3,
+               kmax: int = 20):
+    super(Weierstrass, self).__init__(domain)
+    self._a = a
+    self._b = b
+    self._kmax = kmax
+
+  def _call(self, x: tf.Tensor):
+    d = x.shape[-1]
+    a = tf.cast(self._a, dtype=x.dtype)
+    b = tf.cast(self._b, dtype=x.dtype)
+
+    kindices = tf.range(start=0, limit=self._kmax + 1, dtype=x.dtype)
+    ak = tf.pow(a, kindices)
+    bk = tf.pow(b, kindices)
+
+    ak_bk_sum = d * tf.reduce_sum(tf.multiply(ak, tf.cos(tf.multiply(bk, pi))),
+                                  axis=-1)
+
+    def fn(acc, xi):
+      s = tf.reduce_sum(
+        tf.multiply(ak, tf.cos(tf.multiply(2 * pi * bk, xi + 0.5))),
+        axis=-1)
+      return acc + (s - ak_bk_sum)
+
+    return tf.foldl(fn, x, initializer=tf.cast(0, dtype=x.dtype))
+
+
+class Whitley(TensorflowFunction):
+  """Whitley function defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-10.24, max=10.24)):
+    super(Whitley, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    d = x.shape[-1]
+    indices = tf.range(start=0, limit=d, dtype=tf.int32)
+
+    def fn(acc, i):
+      xi_sqrd = tf.pow(tf.gather(x, i), 2)
+      ij_diff_sqrd = tf.pow(tf.subtract(xi_sqrd, x), 2)
+      aux = tf.pow(-tf.subtract(x, 1), 2)
+      t1 = tf.divide(tf.pow(tf.multiply(ij_diff_sqrd, 100) + aux, 2), 4000)
+      t2 = tf.cos(tf.multiply(ij_diff_sqrd, 100) + aux)
+      return acc + tf.reduce_sum(t1 - t2 + 1, axis=-1)
+
+    return tf.foldl(fn, indices, initializer=tf.cast(0, dtype=x.dtype))
+
+
+class WWavy(TensorflowFunction):
+  """W / Wavy function defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-pi, max=pi),
+               k: float = 10):
+    super(WWavy, self).__init__(domain)
+    self._k = k
+
+  def _call(self, x: tf.Tensor):
+    d = x.shape[-1]
+    return 1 - tf.divide(
+      tf.reduce_sum(
+        tf.multiply(tf.cos(tf.multiply(x, self._k)),
+                    tf.exp(tf.divide(-tf.pow(x, 2), 2))),
+        axis=-1), d)
+
+
+class Zakharov(TensorflowFunction):
+  """Zakharov function defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-5.0, max=10.0)):
+    super(Zakharov, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    d = x.shape[-1]
+    sum1 = tf.reduce_sum(tf.math.pow(x, 2), axis=-1)
+    sum2 = tf.reduce_sum(tf.math.divide(
+      tf.math.multiply(x, tf.range(1, (d + 1), dtype=x.dtype)), 2), axis=-1)
+    return sum1 + tf.math.pow(sum2, 2) + tf.math.pow(sum2, 4)
 
 
 def atleast_2d(tensor: tf.Tensor) -> tf.Tensor:
@@ -235,6 +585,7 @@ def atleast_2d(tensor: tf.Tensor) -> tf.Tensor:
 
 
 def list_all_functions() -> typing.List[core.Function]:
+  """Deprecated. Manually collect all functions."""
   return [Ackley(), Griewank(), Rastrigin(), Levy(), Rosenbrock(), Zakharov(),
           Bohachevsky(), SumSquares(), Sphere(), RotatedHyperEllipsoid(),
           DixonPrice()]
@@ -253,6 +604,7 @@ def get_grads(fun: TensorflowFunction, pos: tf.Tensor):
 
 
 def get_np_function(function: core.Function):
+  """Deprecated. Manually convert functions."""
   domain = function.domain
   f = getattr(npf, function.name)
   return f(domain)

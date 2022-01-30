@@ -1,4 +1,7 @@
-"""NumPy's implementation of many functions."""
+"""NumPy's implementation of many functions.
+References:
+  [1] https://www.sfu.ca/~ssurjano/optimization.html
+"""
 
 import abc
 import typing
@@ -29,8 +32,7 @@ class NumpyFunction(core.Function):
 
 
 class Ackley(NumpyFunction):
-  """Ackley function as defined in:
-  https://www.sfu.ca/~ssurjano/ackley.html."""
+  """Ackley function defined in [1]."""
 
   def __init__(self, domain=core.Domain(min=-32.768, max=32.768),
                a=20, b=0.2, c=2 * np.math.pi, dtype=np.float32):
@@ -54,8 +56,7 @@ class Ackley(NumpyFunction):
 
 
 class Griewank(NumpyFunction):
-  """Griewank function as defined in:
-  https://www.sfu.ca/~ssurjano/griewank.html."""
+  """Griewank function defined in [1]."""
 
   def __init__(self, domain=core.Domain(min=-600.0, max=600.0)):
     super().__init__(domain)
@@ -75,8 +76,7 @@ class Griewank(NumpyFunction):
 
 
 class Rastrigin(NumpyFunction):
-  """Rastrigin function as defined in:
-  https://www.sfu.ca/~ssurjano/rastr.html."""
+  """Rastrigin function defined in [1]."""
 
   def __init__(self, domain=core.Domain(min=-5.12, max=5.12)):
     super().__init__(domain)
@@ -91,8 +91,7 @@ class Rastrigin(NumpyFunction):
 
 
 class Levy(NumpyFunction):
-  """Levy function as defined in:
-  https://www.sfu.ca/~ssurjano/levy.html."""
+  """Levy function defined in [1]."""
 
   def __init__(self, domain=core.Domain(min=-10.0, max=10.0)):
     super().__init__(domain)
@@ -117,8 +116,7 @@ class Levy(NumpyFunction):
 
 
 class Rosenbrock(NumpyFunction):
-  """Rosenbrock function as defined in:
-  https://www.sfu.ca/~ssurjano/rosen.html."""
+  """Rosenbrock function defined in [1]."""
 
   def __init__(self, domain=core.Domain(min=-5.0, max=10.0)):
     super().__init__(domain)
@@ -135,8 +133,7 @@ class Rosenbrock(NumpyFunction):
 
 
 class Zakharov(NumpyFunction):
-  """Zakharov function as defined in:
-  https://www.sfu.ca/~ssurjano/zakharov.html."""
+  """Zakharov function defined in [1]."""
 
   def __init__(self, domain=core.Domain(min=-5.0, max=10.0)):
     super().__init__(domain)
@@ -154,8 +151,7 @@ class Zakharov(NumpyFunction):
 
 
 class Bohachevsky(NumpyFunction):
-  """Bohachevsky function (f1, 2 dims only) as defined in:
-  https://www.sfu.ca/~ssurjano/boha.html."""
+  """Bohachevsky function (f1, 2-D) defined in [1]."""
 
   def __init__(self, domain=core.Domain(min=-100.0, max=100.0)):
     super().__init__(domain)
@@ -174,8 +170,7 @@ class Bohachevsky(NumpyFunction):
 
 
 class SumSquares(NumpyFunction):
-  """SumSquares function as defined in:
-  https://www.sfu.ca/~ssurjano/sumsqu.html."""
+  """SumSquares function defined in [1]."""
 
   def __init__(self, domain=core.Domain(min=-10.0, max=10.0)):
     super().__init__(domain)
@@ -191,8 +186,7 @@ class SumSquares(NumpyFunction):
 
 
 class Sphere(NumpyFunction):
-  """Sphere function as defined in:
-  https://www.sfu.ca/~ssurjano/spheref.html."""
+  """Sphere function defined in [1]."""
 
   def __init__(self, domain=core.Domain(min=-5.12, max=5.12)):
     super().__init__(domain)
@@ -206,8 +200,7 @@ class Sphere(NumpyFunction):
 
 
 class RotatedHyperEllipsoid(NumpyFunction):
-  """Rotated Hyper-Ellipsoid function as defined in:
-  https://www.sfu.ca/~ssurjano/rothyp.html."""
+  """Rotated Hyper-Ellipsoid function defined in [1]."""
 
   def __init__(self, domain=core.Domain(min=-65.536, max=65.536)):
     super().__init__(domain)
@@ -225,8 +218,7 @@ class RotatedHyperEllipsoid(NumpyFunction):
 
 
 class DixonPrice(NumpyFunction):
-  """Dixon-Price function as defined in:
-  https://www.sfu.ca/~ssurjano/dixonpr.html."""
+  """Dixon-Price function defined in [1]."""
 
   def __init__(self, domain=core.Domain(-10, 10)):
     super().__init__(domain)
@@ -247,12 +239,14 @@ class DixonPrice(NumpyFunction):
 
 
 def get_tf_function(function: NumpyFunction):
+  """Deprecated. Manually convert functions."""
   domain = function.domain
   f = getattr(tff, function.name)
   return f(domain)
 
 
 def list_all_functions() -> typing.List[NumpyFunction]:
+  """Deprecated. Manually collect all functions."""
   return [Ackley(), Griewank(), Rastrigin(), Levy(), Rosenbrock(), Zakharov(),
           Bohachevsky(), SumSquares(), Sphere(), RotatedHyperEllipsoid(),
           DixonPrice()]
