@@ -97,6 +97,9 @@ class TestTensorflowFunctions(unittest.TestCase):
   def test_sphere(self):
     self.full_test(tff.Sphere())
 
+  def test_streched_v_sine_wave(self):
+    self.full_test(tff.StrechedVSineWave(), True, 1e5)
+
   def test_bent_cigar(self):
     self.full_test(tff.BentCigar(), True)
 
@@ -121,6 +124,12 @@ class TestTensorflowFunctions(unittest.TestCase):
   def test_qing(self):
     self.full_test(tff.Qing(), True)
 
+  def test_sargan(self):
+    self.full_test(tff.Sargan(), True)
+
+  def test_whitley(self):
+    self.full_test(tff.Whitley(), True)
+
   def test_schwefel(self):
     self.full_test(tff.Schwefel(), True)
 
@@ -129,6 +138,9 @@ class TestTensorflowFunctions(unittest.TestCase):
 
   def test_schwefel_2_26(self):
     self.full_test(tff.Schwefel226(), True)
+
+  def test_schwefel_1_2(self):
+    self.full_test(tff.Schwefel12(), True)
 
   def test_schwefel_2_22(self):
     self.full_test(tff.Schwefel222(), True)

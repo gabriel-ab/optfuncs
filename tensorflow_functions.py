@@ -259,7 +259,7 @@ class Mishra2(TensorflowFunction):
 
   def _call(self, x: tf.Tensor):
     d = x.shape[-1]
-    xi = x[:d-1]
+    xi = x[:d - 1]
     xi1 = x[1:]
     xn = d - tf.reduce_sum(tf.multiply(xi + xi1, 0.5), axis=-1)
     return tf.pow(1 + xn, xn)
@@ -347,6 +347,23 @@ class Salomon(TensorflowFunction):
            tf.multiply(x_sqrt, 0.1)
 
 
+class Sargan(TensorflowFunction):
+  """Sargan function defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-100.0, max=100.0)):
+    super(Sargan, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    d = x.shape[-1]
+    xj = x[1:]
+
+    def fn(acc, xi):
+      return acc + tf.multiply(tf.pow(xi, 2) + tf.multiply(
+        tf.reduce_sum(tf.multiply(xj, xi), axis=-1), 0.4), d)
+
+    return tf.foldl(fn, x, initializer=tf.cast(0, dtype=x.dtype))
+
+
 class SumSquares(TensorflowFunction):
   """Sum Squares function defined in [1]."""
 
@@ -369,6 +386,24 @@ class Schwefel(TensorflowFunction):
   def _call(self, x: tf.Tensor):
     a = tf.cast(self._a, dtype=x.dtype)
     return tf.pow(tf.reduce_sum(tf.pow(x, 2), axis=-1), a)
+
+
+class Schwefel12(TensorflowFunction):
+  """Schwefel function 1.2 defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-100.0, max=100.0)):
+    super(Schwefel12, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    d = x.shape[-1]
+    indices = tf.range(start=0, limit=d, dtype=tf.int32)
+
+    def fn(acc, i):
+      gather_indices = tf.range(start=0, limit=i + 1, dtype=tf.int32)
+      x_ = tf.gather(x, gather_indices)
+      return acc + tf.pow(tf.reduce_sum(x_, axis=-1), 2)
+
+    return tf.foldl(fn, indices, initializer=tf.cast(0, dtype=x.dtype))
 
 
 class Schwefel222(TensorflowFunction):
@@ -425,6 +460,23 @@ class Sphere(TensorflowFunction):
     return tf.reduce_sum(tf.math.pow(x, 2), axis=-1)
 
 
+class StrechedVSineWave(TensorflowFunction):
+  """Streched V Sine Wave function defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-10.0, max=10.0)):
+    super(StrechedVSineWave, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    d = x.shape[-1]
+    xi_sqrd = tf.pow(x[:d - 1], 2)
+    xi1_sqrd = tf.pow(x[1:], 2)
+    sqrd_sum = xi_sqrd + xi1_sqrd
+
+    return tf.reduce_sum(tf.multiply(
+      tf.pow(sqrd_sum, 0.25),
+      tf.pow(tf.sin(tf.multiply(tf.pow(sqrd_sum, 0.1), 50)), 2) + 0.1), axis=-1)
+
+
 class Trigonometric2(TensorflowFunction):
   """Trigonometric function 2 defined in [1]."""
 
@@ -433,9 +485,6 @@ class Trigonometric2(TensorflowFunction):
 
   def _call(self, x: tf.Tensor):
     xi_squared = tf.pow(tf.subtract(x, 0.9), 2)
-
-    const = tf.multiply(tf.pow(
-      tf.sin(tf.multiply(tf.pow(tf.subtract(x[1], 0.9), 2), 14)), 2), 6)
 
     res_x = tf.multiply(tf.pow(tf.sin(tf.multiply(xi_squared, 7)), 2), 8) + \
             tf.multiply(tf.pow(tf.sin(tf.multiply(xi_squared, 14)), 2), 6) + \
@@ -474,6 +523,27 @@ class Weierstrass(TensorflowFunction):
       return acc + (s - ak_bk_sum)
 
     return tf.foldl(fn, x, initializer=tf.cast(0, dtype=x.dtype))
+
+
+class Whitley(TensorflowFunction):
+  """Whitley function defined in [1]."""
+
+  def __init__(self, domain: core.Domain = core.Domain(min=-10.24, max=10.24)):
+    super(Whitley, self).__init__(domain)
+
+  def _call(self, x: tf.Tensor):
+    d = x.shape[-1]
+    indices = tf.range(start=0, limit=d, dtype=tf.int32)
+
+    def fn(acc, i):
+      xi_sqrd = tf.pow(tf.gather(x, i), 2)
+      ij_diff_sqrd = tf.pow(tf.subtract(xi_sqrd, x), 2)
+      aux = tf.pow(-tf.subtract(x, 1), 2)
+      t1 = tf.divide(tf.pow(tf.multiply(ij_diff_sqrd, 100) + aux, 2), 4000)
+      t2 = tf.cos(tf.multiply(ij_diff_sqrd, 100) + aux)
+      return acc + tf.reduce_sum(t1 - t2 + 1, axis=-1)
+
+    return tf.foldl(fn, indices, initializer=tf.cast(0, dtype=x.dtype))
 
 
 class WWavy(TensorflowFunction):
